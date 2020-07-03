@@ -1,0 +1,33 @@
+hybrid:"hybrid:" "{" (keyValue)* "}"  
+(initial)*
+"states:" (state)*;
+"transitions:" (transition)* ;
+
+keyValue: key=ID "=" value = expression; 
+
+equation: ID "=" expression #EquationStatement
+| "der("ID")" "=" expression #DifEquationStatement
+
+initial:
+| "constant" ID "=" expression #ConstantStatement
+| ID"(t0)" "=" expression #InitialConditionStatement
+
+state: "state{" 
+"start:"
+(stateStatement)*
+"equations:"
+	(equation)*;
+"end:" 
+(stateStatement)*
+"}";
+
+stateStatement: 
+ID "=" expression #EquationStatement;
+
+transition: "from" fromState = ID "to" (ID (COMMA ID)*)+ "on (" condition=boolExpression ")";
+
+boolExpression: expression = expression
+| expression >= expression
+| expression > expression
+| expression < expression
+| expression <= expression;

@@ -1,0 +1,111 @@
+<html>
+<head>
+<title>ODE solvers</title>
+</head>
+<body>
+<div class="tabHeaderList">
+	<div class="tabHeader">Continuous Optimization</div>
+	<div class="tabHeader">Optimization</div>
+	<div class="tabHeader">Nonlinear equations</div>
+	<div class="tabHeader">ODE systems</div>
+	<div class="tabHeader">Hybrid systems</div>
+</div>
+<div class="tabList">
+	<div class="tab" id="OptimizationContinuous">
+		<textarea id="optimizationInput">
+			cos(x)+y*z-5
+		</textarea>
+		<select id="methodOptimization">
+			<option value="newton"></option>
+			<option value="gauss-newton"></option>
+		</select>
+	</div>
+	<div class="tab" id="Optimization">
+		<textarea id="optimizationInput">
+			var x{continuous limit[-inf,inf]}, y{discrete step[0.2] limit[-2,2]}, z{discrete array[-3,2,1,5]};
+			constant a = 5;
+			if(x<5)
+			{
+				t = x*x+y*z;//
+				fitness=t-x;
+			}else
+				fitness=z;
+		</textarea>
+		//make tabs
+		<select id="methodOptimization">
+			<option value="newton"></option>
+			<option value="gauss-newton"></option>
+		</select>
+	</div>
+	<div class="tab" id="NonlinearEquations">
+		<label for="nonlinearSystemInput">Nonlinear system</label>
+		<textarea id="nonlinearSystemInput">
+		//equations
+		constant p = 2;
+		constant a = 1.0;
+		0 = x*x * a + p + y;
+		0 = x + t;
+		</textarea>
+		<input id="step" type="number">
+		<input id="t0" type="number">
+		<input id="t1" type="number">
+		<input id="newtonIterations" type="number">
+		<input id="fAbsTol" type="number">
+	</div>
+	<div class="tab" id="ODEtab">
+		<label for="odeInput">ODE system</label>
+		<textarea id="odeInput">
+		//equations
+		constant p = 2;
+		constant a = 1.0;
+		der(x,2) = x*x * a + p + y;
+		y' = x + t;
+		//initial conditions
+		x(t0) = 0;
+		der(x)(t0) = 0;
+		</textarea>
+		<select id="ODEsolver">
+			<option>
+			</option>
+		</select>
+		<input id="min step" type="number">
+		<input id="step" type="number">
+		<input id="t0" type="number">
+		<input id="t1" type="number">
+		<input id="newtonIterations" type="number">
+		<input id="fAbsTol" type="number">
+		<button>Solve</button>
+		<div id="modalODEPlot">
+			<div id="modalODEPlotVariables">
+			</div>
+			<button>OK</button>
+			<button>Cancel</button>
+		</div>
+	</div>
+	<div class="tab" id="hybridSystems">
+		<textarea id="hybridInput">
+			//equations
+			constant p = 2;
+			constant a = 1.0;
+			//initial conditions
+			x(t0) = 0;
+			der(x)(t0) = 0;
+			default state stateName
+			{
+				onEnter:
+				x=0;
+				y=0;
+				during:
+				der(x,2) = x*x * a + p + y;
+				y' = x + t;
+				onLeave:
+				x=10;
+			}
+			from stateName to stateName on (x*x<y&&y<10); 
+		</textarea>
+	</div>
+</div>
+<script>
+</script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+https://tomassetti.me/writing-a-browser-based-editor-using-monaco-and-antlr/
+https://neos-guide.org/content/trust-region-and-line-search-for-nonlinear-equations
+https://neos-guide.org/content/Truncated-Newton-Methods
+https://neos-guide.org/content/broydens-method
+https://neos-guide.org/content/nonlinear-equations
+https://neos-guide.org/content/continuous-optimization
+https://neos-guide.org/algorithms
