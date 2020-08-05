@@ -5,16 +5,13 @@
 
 
 
+/*
+class App extends React.Component{
 
-class App extends React.Component
-{
-
-	constructor(props)
-	{
+	constructor(props){
 		super(props);
 	}
-	render()
-	{
+	render(){
 
 	}
-}
+}*/

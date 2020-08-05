@@ -1,0 +1,211 @@
+body{
+    font-family: -apple-system,BlinkMacSystemFont,
+    "Segoe UI",Roboto,"Helvetica Neue",
+    Arial,sans-serif,"Apple Color Emoji",
+    "Segoe UI Emoji","Segoe UI Symbol";
+}
+#text-input
+{
+    width:100%;
+    min-height:300px;
+    resize:vertical;
+}
+.disableable{
+    transition: opacity 0.3s ease-in;
+}
+.disableable[disabled]
+{
+    opacity:0.5;
+    transition: opacity 0.3s ease-in;
+}
+.group
+{
+    margin:0.75em 0em 0.5em;
+    padding:1em 0.5em 0.5em 0.5em;
+    position:relative;
+    border:2px solid #989898;
+}
+.group-name
+{
+    position:absolute;
+    left:1em;
+    top:-0.5em;
+    max-width:calc(100% - 3em);
+    padding:0px 0.5em;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    background-color:#f5f5f5;
+}
+#options
+{
+    padding:5px;
+}
+.tab-header
+{
+    display:inline-block;
+    padding:7px 10px;
+    font-size:1.05em;
+    cursor: pointer;
+    user-select: none;
+    margin-bottom:-1px;
+    color:#b7b7b7;
+}
+#log-errors-tab-content{
+    border:1px solid gray;
+    border-top:none;
+}
+.tab-header.active
+{
+    border-top-left-radius:.25rem;
+    border-top-right-radius:.25rem;
+    border:1px solid gray;
+    background-color:#f5f5f5;
+    color:#4a4848;
+    border-bottom:none;
+    z-index:200;
+}
+.tab{
+    display:none;
+    padding:5px;
+    box-sizing:border-box;
+}
+.tab.show{
+    display:block;
+}
+#tab-window{
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    box-sizing:border-box;
+    background-color:#f5f5f5;
+}
+#tab-errors{
+    margin:5px 0px;
+}
+.tab-container
+{
+    box-sizing:border-box;
+}
+#header,#main-header
+{
+    width:100%;
+    height:auto;
+    user-select: none;
+    box-sizing: border-box;;
+}
+#main-header{
+    padding:5px 5px 0px 5px;
+    border-bottom:1px solid gray;
+}
+#header{
+    flex-grow:0;
+    flex-shrink:0;
+    border-bottom:1px solid gray;
+    padding:5px 5px 0px 5px;
+    background-color:#232323;
+}
+.tab-content
+{
+    overflow:auto;
+    flex-grow:1;
+    flex-shrink:1;
+    box-sizing:border-box;
+}
+#log
+{
+    width:100%;
+    min-height:150px;
+    resize:vertical;
+}
+#errors-tab
+{
+    width:100%;
+    overflow-x:auto;
+    overflow-y:auto;
+}
+#errors
+{
+    display:table;
+    border-collapse:collapse;
+}
+#error-list
+{
+    display:table-row-group;
+}
+#errors-header
+{
+    display:table-header-group;
+    background:linear-gradient(0deg, #f7f7f7, #bdbdbd);
+    font-weight:500;
+}
+#errors-row
+{
+    display:table-row;
+}
+.errors-cell
+{
+    display:table-cell;
+    padding:5px 5px 2px;
+    border:1px solid gray;
+}
+.form-row
+{
+    display:inline-block;
+    /*display:flex;*/
+    /*flex-direction:row;*/
+    flex-grow:0;
+    flex-shrink:0;
+    width:400px;
+    max-width:100%;
+    /*height:fit-content;*/
+    padding:5px;
+    white-space:nowrap;
+    box-sizing: border-box;
+}
+.form-col
+{
+    /*flex-basis:50%;*/
+    /*flex-grow:0;*/
+    /*flex-shrink:0;*/
+    /*width:100%;*/
+    width:50%;
+    display:inline-block;
+    position:relative;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+#plot-area
+{
+    width:100%;
+    height:100%;
+}
+#results{
+    height:100%;
+}
+#load-area
+{
+    /*padding:5px;*/
+    box-sizing: border-box;
+}
+.example-button{
+    margin:4px;
+    display:block;
+}
+.button{
+    padding:5px 10px;
+    border-radius:0;
+    border:none;
+    background-color:#a7a7a7;
+    color:#000000;
+    cursor: pointer;
+    user-select:none;
+}
+.button:hover{
+    background-color:#868686;
+}
+.button:active{
+    background-color:#c0c0c0;
+}

@@ -1,0 +1,194 @@
+
+
+/*
+for(i in [0,10]){
+	local constant a[i] = i*2+1
+	if(i>i.first)
+		x[i] = a[i] * x[i-1] + 15;
+	else
+		x[i] = a[i] * x[i.last] + 5;
+	x(0) = 4+a[i];
+}
+*/
+
+//https://www.mathworks.com/help/matlab/math/solve-differential-algebraic-equations-daes.html
+//Robertson problem
+x1(t0) = 1;
+x2(t0) = 0;
+x1'=-0.04*x1+10^4*x2*x3;
+x2'=0.04-1e4*x2*x3-3e7*x2^2;
+x3 = 1 - x1 - x2;
+
+//https://www.mathworks.com/help/matlab/ref/decic.html
+//Weissinger implicit dif. eq.
+//t0 = 1
+x(t0) = sqrt(3/2);
+t * x^2*der(x)^3 - x^2*der(x)^2 + t*(t^2+1)*der(x)-t*t*x = 0;
+z = sqrt(t*t+0.5);//exact solution
+
+//stiff equation
+x' = -21*x+exp(-t);
+x(t0) = 0;
+
+//Lorenz system
+constant sigma = 10;
+constant rho=28;
+constant beta=8/3;
+x(t0) = 1;
+y(t0) = 1;
+z(t0) = 1
+x' = sigma* (y-x);
+y' = x * (rho - z) - y;
+z' = x*z-beta*z;
+
+//Dalquist equation
+//t0 = 0, t1 = 2
+constant a = 2;
+x(t0) = 1;
+x' = a * x
+
+//Van der Pol oscillator
+constant mu = 20;
+constant a = 0;
+constant omega = 1;
+x1(t0) = 1;
+x2(t0) = 0;
+x1' = x2;
+x2' = mu*(1-x1*x1)*x2-x1 + a*sin(omega*t);
+
+//Airy equation
+//x''-tx=0
+//t0 = -15
+x2(t0)=0.0;
+x1(t0)=0.255;
+
+x2'= t*x1;
+x1'= x2; 
+
+
+//Jumping ball
+constant m = 1;
+constant g = 9.8;
+
+x(t0) = 1;
+v(t0) = 0;
+
+v' = -m*g;
+x' = v;
+
+state jump on(v<0 and x<0){
+	set v = -v;
+} from init, jump;
+
+//Two masses
+constant k1 = n1 = m1 = m2 = 1, k2 = n2 = 2;
+
+x1(t0) = 0;
+x2(t0) = 3;
+st(t0) = 0;
+
+state separate on(st<){
+	x1' = v1;
+	v1' = k1*(n1-x1)/m1;
+	x2' = v2;
+	v2' = k2*(n2-x2)/m2;
+	set st = 10;
+	a1 = k1*(n1 - x1)/m1;
+	a2 = k2*(n2 - x2)/m2;
+} from init, together;
+
+state together(x1>x2&&v1>v2){
+	set st = 10;
+	set v1 = (m1 * v1 + m2*v2)/(m1 + m2);
+	set v2 = v1;
+	v1' = (k1*n1+k2*n2-x1*(k1+k2))/(m1+m2);
+	v2' = (k1*n1+k2*n2-x2*(k1+k2))/(m1+m2);
+	x1' = v1;
+	x2' = v2;
+	a1 = (k1*n1 + k2*n2-x1*(k1+k2))/(m1+m2);
+	a2 = (k1*n1 + k2*n2-x2*(k1+k2))/(m1+m2);
+} from init, separate;
+
+
+//prey hunter Lotka–Volterra
+constant alpha = 1.1;
+constant beta = 0.4;
+constant delta = 0.1;
+constant gamma = 0.4;
+
+x(t0) = 10;
+y(t0) = 10;
+
+x' = x*alpha-beta*x*y;
+y' = delta*x*y - gamma*y;
+
+
+//logistic differential equation
+constant k = 1;
+constant a = 1;
+
+x(t0) = 0.5;
+
+x' = k*x*(a-x);
+
+//abs value
+//t = [0,40]
+x(t0) = 1;
+x' = -abs(x);
+z = exp(-t);//analytic solution
+
+state zero on(x<0){
+	set x = abs(x);
+} from init, zero;
+
+//knee problem
+//t = [0,2]
+constant epsilon = 1e-6;
+x(t0) = 1;
+if(t<1){
+	z = 1 - x;
+}else{
+	z = 0;
+}
+epsilon*x' = (1 - t)*x - x^2;
+state zero on(x<0){
+	set x = - x;
+} from init, zero;
+
+//https://www.mathworks.com/help/matlab/math/nonnegative-ode-solution.html
+
+
+//falling body
+//x'' = -1 + x'^2
+x1(t0) = 1;
+x2(t0) = 0;
+x1' = x2;
+x2' = -1 + x1^2;
+
+terminal state zero on(x<=0){
+	set x = 0;
+} from init;
+
+
+
+//penduluum
+//t = [0,0.5]
+constant m = 1;
+constant r = 1;
+constant g = 9.8;
+y1(t0) = 1;
+y2(t0) = 0;
+y1' = y2;
+y2' = y3;
+
+m*x3 = T*x1/r;
+m*y3 = T*y1/r - g;
+x1^2 + y1^2 = r^2;
+x1*x2 + y1*y2 = 0;
+x2^2 + y2^2+ x1*x3 + y3*y1 = 0;
+
+//pendulum with event
+
+
+
+//RLC scheme
