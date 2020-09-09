@@ -1,12 +1,12 @@
 import {
     DAEVector
-} from "../../solver";
+} from "../../daeVector";
 import { IDAESolver } from "../../idaeSolver";
 import { IDAESystem } from "../../idaeSystem";
 import { vector } from "../../../math/vector";
 import { matrix } from "../../../math/matrix";
 import { gauss } from "../../../math/gauss";
-import { NewtonSolver } from "../../../nonlinear/newton";
+import { NewtonSolver } from "../../../math/newton";
 /**
  * explicit rk methods for implicit dae of index 1
  */
@@ -21,7 +21,6 @@ abstract class IDAE_ERK extends IDAESolver{
         this.b = b;
         this.c = c;
     }
-    //TODO test
     public makeStep(x: vector, z: vector, t: number, system: IDAESystem): DAEVector {
         let k:vector[] = [];
         let _z = z;
@@ -64,7 +63,6 @@ abstract class IDAE_ERKA extends IDAE_ERK{
         this.minStep = step;
         this.maxStep = maxStep;
     }
-    //TODO test
     public makeStep(x: vector, z: vector, t: number, system: IDAESystem): DAEVector {
         while(true){
             let k:vector[] = [];
@@ -181,40 +179,7 @@ abstract class IDAE_IRK extends IDAESolver{
         }
         return J;
     }
-    //TODO test
     public makeStep(x: vector, z: vector, t: number, system: IDAESystem): DAEVector {
-
-        /*let length = system.length_x()+system.length_z();
-        let kxz = this.stepSolver.solve((kxz:vector)=>{
-            let kx:vector[] = [];
-            let kz:vector[] = [];
-            for(let i=0;i<this.stages;i++){
-                kx[i] = kxz.getSubVector(i*length,system.length_x());
-                kz[i] = kxz.getSubVector(i*length+system.length_z(),system.length_z());
-            }
-            let F:vector = this.function(kx,kz,x,z,t,system);
-            return F;
-        },(kxz:vector)=>{
-            let kx:vector[] = [];
-            let kz:vector[] = [];
-            for(let i=0;i<this.stages;i++){
-                kx[i] = kxz.getSubVector(i*length,system.length_x());
-                kz[i] = kxz.getSubVector(i*length+system.length_z(),system.length_z());
-            }
-            let J:matrix = this.jacobiMatrix(kx,kz,x,z,t,system);
-            return J;
-        },this.stages * length);
-        let xNew = x.clone();
-        let kx:vector[] = [];
-        let kz:vector[] = [];
-        let tNew = t + this.step;
-        kz[0] = kxz.getSubVector(system.length_x(),system.length_z());
-        for(let i=0;i<this.stages;i++){
-            kx[i] = kxz.getSubVector(i*length,system.length_x());
-            xNew.addSelf(kx[i].scaleSelf(this.step * this.b[i]));
-        }
-        return new DAEVector(xNew,this.solve_z(xNew,kz[0],tNew,system),tNew);*/
-
         let length = system.length_x()+system.length_z();
         let kx:vector[] = [];
         let kz:vector[] = [];
@@ -257,16 +222,15 @@ abstract class IDAE_IRKA extends IDAE_IRK{
     protected maxStep:number;
     constructor(step:number,maxStep:number,
         errorOrder:number,errorTolerance:number,
-        stepSolver:NewtonSolver,
+        systemSolver:NewtonSolver,
         a:number[][],b:number[],c:number[],_b:number[],stages:number){
-        super(step,stepSolver,a,b,c,stages);
+        super(step,systemSolver,a,b,c,stages);
         this._b = _b;
         this.errorOrder = errorOrder;
         this.errorTolerance = errorTolerance;
         this.minStep = step;
         this.maxStep = maxStep;
     }
-    //TODO test
     public makeStep(x: vector, z: vector, t: number, system: IDAESystem): DAEVector {
         //throw new Error("Method not implemented.");
         while(true){
@@ -353,7 +317,6 @@ export class IDAE_RK4_2 extends IDAE_ERK{
     }
 }
 export class IDAE_RK4_RALSTON extends IDAE_ERK{
-    //TODO: TEST
     constructor(step:number,systemSolver:NewtonSolver){
         super(step,systemSolver,
             [
@@ -367,7 +330,6 @@ export class IDAE_RK4_RALSTON extends IDAE_ERK{
     }
 }
 export class IDAE_RK6 extends IDAE_ERK{
-    //TODO: TEST
     constructor(step:number,systemSolver:NewtonSolver){
         super(step,systemSolver,
             [
@@ -385,7 +347,6 @@ export class IDAE_RK6 extends IDAE_ERK{
 
 }
 export class IDAE_RK6_2 extends IDAE_ERK{
-    //TODO: TEST
     constructor(step:number,systemSolver:NewtonSolver){
         super(step,systemSolver,
             [
@@ -403,7 +364,6 @@ export class IDAE_RK6_2 extends IDAE_ERK{
 
 }
 export class IDAE_RK8 extends IDAE_ERK{
-    //TODO: TEST
     constructor(step:number,systemSolver:NewtonSolver){
         var root21=Math.sqrt(21);
         super(step,systemSolver,
@@ -460,7 +420,6 @@ export class IDAE_BS23 extends IDAE_ERKA{
     }
 }
 export class IDAE_HeunEuler extends IDAE_ERKA{
-    //TODO: TEST
     constructor(step:number,maxStep:number,errorTolerance:number,systemSolver:NewtonSolver){
         super(step,maxStep,2,errorTolerance,systemSolver,
             [
@@ -473,7 +432,6 @@ export class IDAE_HeunEuler extends IDAE_ERKA{
     }
 }
 export class IDAE_MidpointEuler extends IDAE_ERKA{
-    //TODO: TEST
     constructor(step:number,maxStep:number,errorTolerance:number,systemSolver:NewtonSolver){
         super(step,maxStep,2,errorTolerance,systemSolver,
             [
@@ -487,10 +445,9 @@ export class IDAE_MidpointEuler extends IDAE_ERKA{
 }
 
 export class IDAE_RADAUIA5 extends IDAE_IRK{
-    //TODO: TEST
-    constructor(step:number,stepSolver:NewtonSolver){
+    constructor(step:number,systemSolver:NewtonSolver){
         let root6=Math.sqrt(6);
-        super(step,stepSolver,
+        super(step,systemSolver,
             [
                 [1/9,(-1-root6)/18,(-1+root6)/18],
                 [1/9,(88+7*root6)/360,(88-43*root6)/360],
@@ -503,10 +460,9 @@ export class IDAE_RADAUIA5 extends IDAE_IRK{
     }
 }
 export class IDAE_RADAUIIA3 extends IDAE_IRK{
-    //TODO: TEST
-    constructor(step:number,stepSolver:NewtonSolver){
+    constructor(step:number,systemSolver:NewtonSolver){
         let root6=Math.sqrt(6);
-        super(step,stepSolver,
+        super(step,systemSolver,
             [
                 [5/12,-1/12],
                 [3/4,1/4]
@@ -519,10 +475,9 @@ export class IDAE_RADAUIIA3 extends IDAE_IRK{
     
 }
 export class IDAE_RADAUIIA5 extends IDAE_IRK{
-    //TODO: TEST
-    constructor(step:number,stepSolver:NewtonSolver){
+    constructor(step:number,systemSolver:NewtonSolver){
         let root6=Math.sqrt(6);
-        super(step,stepSolver,
+        super(step,systemSolver,
             [
                 [11/45-7*root6/360,37/225-169*root6/1800,-2/225+root6/75],
                 [37/225+169*root6/1800,11/45+7*root6/360,-2/225-root6/75],
@@ -539,11 +494,10 @@ export class IDAE_RADAUIIA5 extends IDAE_IRK{
  * Embedded gauss-legendre 4th order
  */
 export class IDAE_GAUSSLEGENDRE4 extends IDAE_IRKA{
-    //TODO: TEST
     constructor(step:number,maxStep:number,errorTolerance:number,
-        stepSolver:NewtonSolver){
+        systemSolver:NewtonSolver){
         let sqrt3 = Math.sqrt(3); 
-        super(step,maxStep,4,errorTolerance,stepSolver,
+        super(step,maxStep,4,errorTolerance,systemSolver,
             [
                 [1/4,1/4-sqrt3/6],
                 [1/4+sqrt3/6,1/4]
@@ -558,11 +512,10 @@ export class IDAE_GAUSSLEGENDRE4 extends IDAE_IRKA{
  * Embedded gauss-legendre 6th order
  */
 export class IDAE_GAUSSLEGENDRE6 extends IDAE_IRKA{
-    //TODO: TEST
     constructor(step:number,maxStep:number,errorTolerance:number,
-        stepSolver:NewtonSolver){
+        systemSolver:NewtonSolver){
         let sqrt15 = Math.sqrt(15); 
-        super(step,maxStep,6,errorTolerance,stepSolver,
+        super(step,maxStep,6,errorTolerance,systemSolver,
             [
                 [5/36,2/9-sqrt15/15,5/36-sqrt15/30],
                 [5/36+sqrt15/24,2/9,5/36,-sqrt15/24],
@@ -576,10 +529,9 @@ export class IDAE_GAUSSLEGENDRE6 extends IDAE_IRKA{
     }
 }
 export class IDAE_LOBATTOIIIA2 extends IDAE_IRKA{
-    //TODO: TEST
     constructor(step:number,maxStep:number,errorTolerance:number,
-        stepSolver:NewtonSolver){
-        super(step,maxStep,2,errorTolerance,stepSolver,
+        systemSolver:NewtonSolver){
+        super(step,maxStep,2,errorTolerance,systemSolver,
             [
                 [0,0],
                 [1/2,1/2]
@@ -592,10 +544,9 @@ export class IDAE_LOBATTOIIIA2 extends IDAE_IRKA{
     }
 }
 export class IDAE_LOBATTOIIIA4 extends IDAE_IRKA{
-    //TODO: TEST
     constructor(step:number,maxStep:number,errorTolerance:number,
-        stepSolver:NewtonSolver){
-        super(step,maxStep,4,errorTolerance,stepSolver,
+        systemSolver:NewtonSolver){
+        super(step,maxStep,4,errorTolerance,systemSolver,
             [
                 [0,0,0],
                 [5/24,1/3,-1/24],
@@ -609,10 +560,9 @@ export class IDAE_LOBATTOIIIA4 extends IDAE_IRKA{
     }
 }
 export class IDAE_LOBATTOIIIB2 extends IDAE_IRKA{
-    //TODO: TEST
     constructor(step:number,maxStep:number,errorTolerance:number,
-        stepSolver:NewtonSolver){
-        super(step,maxStep,2,errorTolerance,stepSolver,
+        systemSolver:NewtonSolver){
+        super(step,maxStep,2,errorTolerance,systemSolver,
             [
                 [1/2,0],
                 [1/2,0]
@@ -625,10 +575,9 @@ export class IDAE_LOBATTOIIIB2 extends IDAE_IRKA{
     }
 }
 export class IDAE_LOBATTOIIIB4 extends IDAE_IRKA{
-    //TODO: TEST
     constructor(step:number,maxStep:number,errorTolerance:number,
-        stepSolver:NewtonSolver){
-        super(step,maxStep,4,errorTolerance,stepSolver,
+        systemSolver:NewtonSolver){
+        super(step,maxStep,4,errorTolerance,systemSolver,
             [
                 [1/6,-1/6,0],
                 [1/6,1/3,0],
@@ -642,10 +591,9 @@ export class IDAE_LOBATTOIIIB4 extends IDAE_IRKA{
     }
 }
 export class IDAE_LOBATTOIIIC2 extends IDAE_IRKA{
-    //TODO: TEST
     constructor(step:number,maxStep:number,errorTolerance:number,
-        stepSolver:NewtonSolver){
-        super(step,maxStep,2,errorTolerance,stepSolver,
+        systemSolver:NewtonSolver){
+        super(step,maxStep,2,errorTolerance,systemSolver,
             [
                 [1/2,-1/2],
                 [1/2,1/2]
@@ -658,10 +606,9 @@ export class IDAE_LOBATTOIIIC2 extends IDAE_IRKA{
     }
 }
 export class IDAE_LOBATTOIIIC4 extends IDAE_IRKA{
-    //TODO: TEST
     constructor(step:number,maxStep:number,errorTolerance:number,
-        stepSolver:NewtonSolver){
-        super(step,maxStep,4,errorTolerance,stepSolver,
+        systemSolver:NewtonSolver){
+        super(step,maxStep,4,errorTolerance,systemSolver,
             [
                 [1/6,-1/3,1/6],
                 [1/6,5/12,-1/12],

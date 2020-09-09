@@ -1,25 +1,33 @@
 import { vector } from "../math/vector";
 import { IDAEHybridSystem } from "./idaeHybridSystem";
 import { IDAESolver } from "./IDAESolver";
-import { EventDetector, AdaptiveStepStrategy, HybridSolution, DAEVector } from "./solver";
+import {  HybridSolution } from "./hybridSolution";
+import { EventDetection } from "./eventDetection";
+import { AdaptiveStepStrategy } from "./adaptiveStep";
+import { DAEVector } from "./daeVector";
 
-//TODO: test
+const maxFloats = 2097152;
+//TODO: test this solver
+
+
 export class IDAEHybridSolver {
-    eventDetector: EventDetector;
+    eventDetector: EventDetection;
     adaptiveStepStrategy: AdaptiveStepStrategy | null;
-    constructor(eventDetector: EventDetector, adaptiveStepStrategy: AdaptiveStepStrategy | null) {
+    constructor(eventDetector: EventDetection, adaptiveStepStrategy: AdaptiveStepStrategy | null) {
         this.eventDetector = eventDetector;
         this.adaptiveStepStrategy = adaptiveStepStrategy;
     }
-    solve(x0: vector, t0: number, t1: number, solver: IDAESolver, system: IDAEHybridSystem, saveVariables: number[]): HybridSolution {
+    solve(x0: vector, z0:vector, t0: number, t1: number, solver: IDAESolver, system: IDAEHybridSystem): HybridSolution {
         let solutionValues: DAEVector[] = [];
         let states: number[] = [];
+        let stateSwitches: number[] = [];
         let t = t0;
         let x = x0;
-        let z = solver.solve_z(x, vector.empty(system.length_z()), t, system);
+        let z = solver.solve_z(x, z0, t, system.getCurrentState());
         let oldValues = new DAEVector(x, z, t);
         solutionValues.push(oldValues);
         states.push(system.getCurrentStateIndex());
+        stateSwitches.push(t0);
         while (oldValues.t < t1) {
             //find step
             let currentStep = solver.getStep();
@@ -32,15 +40,13 @@ export class IDAEHybridSolver {
                 }
             }
             //get values
-            let curValues = solver.makeStep(oldValues.x, oldValues.z, oldValues.t, system);
+            let curValues = solver.makeStep(oldValues.x, oldValues.z, oldValues.t, system.getCurrentState());
             //check for state change in the interval [t,t+h]
             if (this.eventDetector.checkEventIDAE(oldValues, curValues, solver, system)) {
-                //set t;
-                //set x;
-                //TODO call setters
-                curValues.z = solver.solve_z(curValues.x, curValues.z, curValues.t, system);
+                states.push(system.getCurrentStateIndex());
+                stateSwitches.push(curValues.t);
                 if (system.isTerminal()) {
-                    return new HybridSolution(solutionValues, states);
+                    break;
                 }
                 //reset multistep method
                 solver.setStep(currentStep);
@@ -49,8 +55,11 @@ export class IDAEHybridSolver {
                 solver.setStep(currentStep);
             oldValues = curValues;
             solutionValues.push(oldValues);
-            states.push(system.getCurrentStateIndex());
+            if (states.length*2+solutionValues.length*(system.getCurrentState().length_x()+system.getCurrentState().length_z()+1) > maxFloats) {
+                console.info(`Solution was terminated prematurely due to memory limit`);
+                break;
+            }
         }
-        return new HybridSolution(solutionValues, states);
+        return new HybridSolution(solutionValues, states, stateSwitches);
     }
 }

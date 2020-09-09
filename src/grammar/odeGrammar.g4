@@ -1,55 +1,57 @@
 grammar odeGrammar;
 
-ode: odeStatement*;
+dae: daeStatement*;
 
-odeStatement: equation|initialCondition|constantStatement|macroStatement|loop;
+daeStatement: equation|initialCondition|constantStatement|macroStatement|loop;
 
-hybrid:	statement* ;
+hybrid:	hybridStatement* ;
 
 number		: value=(FLOAT|INT);
-statement:equation|initialCondition|constantStatement|macroStatement|loop|event;
+hybridStatement:equation|initialCondition|constantStatement|macroStatement|loop|stateDef;
 
-varIdentifier: ID (LSQR index = expression RSQR)* ;
-loopBody:LCRL (equation|initialCondition|constantStatement|loop)* RCRL;	
-macroStatement:MACRO name=ID LPAREN macroArguments RPAREN exp=expression SEMICOLON;
+index: LSQR exp = expression RSQR;
+
+varIdentifier: id = ID (index)* ;
+loopStatement: equation|initialCondition|macroStatement|constantStatement|setter|loop;
+loopBody:LCRL (loopStatement)* RCRL;	
+macroStatement:MACRO id=varIdentifier (LPAREN macroArguments RPAREN)? exp=expression SEMICOLON;
 macroArguments: ID (COMMA ID)* |;
-loop:FOR LPAREN index = ID IN LSQR lbound = INT COLON rbound = INT RSQR (COMMA LSQR lbound = INT COLON rbound = INT)* loopBody COMMA loopBody (RSQR|RPAREN) RPAREN;
+loopBounds: lbound = INT COLON rbound = INT;
+loop:FOR LPAREN iterator = ID IN LSQR loopBounds+ RSQR RPAREN loopBody;
 /*conditionStatement: IF LPAREN condition = boolExpression RPAREN ifBody = conditionBody (ELSE elseBody = conditionBody)? ;
 conditionBody: LCRL (equation|setter)*  RCRL;*/
-equation: (label=ID COLON)? left=expression E right = expression  SEMICOLON;
-setter: SET variable = varIdentifier E right = expression;
-initialCondition: variable = varIdentifier ZEROSQR E exp = expression  SEMICOLON #algebraicCondition
-    | variable = varIdentifier T0 E exp = expression SEMICOLON #differentialCondition
-    ;
+equation: (label=varIdentifier COLON)? left=expression E right = expression  SEMICOLON;
+setter: SET variable = varIdentifier E exp = expression SEMICOLON;
+initialCondition: variable = varIdentifier T0 E exp = expression SEMICOLON;
 constantStatement: CONSTANT constant=varIdentifier E exp = expression SEMICOLON;
 
-event: TERMINAL? name = ID LCRL (equation|setter)* RCRL FROM transition = stateTransition  (COMMA transition = stateTransition)*;
+stateStatement: (equation|setter|loop|macroStatement|constantStatement);
 
-stateTransition: prevState = ID ON LPAREN condition = boolExpression RPAREN;
+stateDef: TERMINAL? STATE name = ID LCRL (stateStatement)* RCRL FROM stateTransition  (COMMA stateTransition)* SEMICOLON;
 
-unaryOperator: op=(PLUS | MINUS);
+stateTransition: ID (COMMA ID)* ON LPAREN condition = boolExpression RPAREN;
 
 boolExpression: LPAREN boolExpression RPAREN #BracketBoolExpression
-    | <assoc=right> op = NOT boolExpression #BoolBinaryOperator
-    | leftexp = expression op = (L|LE|G|GE) rightexp = expression #BoolBinaryOperator
-    | leftexp = expression op = (E|NE) rightexp = expression #BoolBinaryOperator
-    | left = boolExpression op = AND right = boolExpression #BoolBinaryOperator
-    | left = boolExpression op = OR right = boolExpression #BoolBinaryOperator
+    | <assoc=right> op = NOT boolExpression #BoolUnaryOperator
+    | leftexp = expression op = (L|LE|G|GE) rightexp = expression #EBoolBinaryOperator
+    | leftexp = expression op = (E|NE) rightexp = expression #EBoolBinaryOperator
+    | left = boolExpression op = AND right = boolExpression #BBoolBinaryOperator
+    | left = boolExpression op = OR right = boolExpression #BBoolBinaryOperator
+	| value = (TRUE|FALSE) #BoolConstant
     ;
 
 expression: LPAREN expression RPAREN #BracketExpression
 	| DER LPAREN id=varIdentifier RPAREN #FunctionDerivative
 	| func=ID LPAREN functionArguments RPAREN	#FunctionExpression
-	| left=expression op=CARET right=expression #BinaryOperatorExpression
-	| op=unaryOperator expression	#UnaryOperatorExpression
+	| <assoc=right> left=expression op=CARET right=expression #BinaryOperatorExpression
+	| op=(PLUS | MINUS) expression	#UnaryOperatorExpression
 	| left=expression op=(DIVISION|ASTERISK) right=expression #BinaryOperatorExpression
 	| left=expression op=(PLUS|MINUS) right=expression	#BinaryOperatorExpression
-	| id=varIdentifier APOSTROPHE #DerivativeExpression 
-	| id=varIdentifier #VariableExpression
+	| id=varIdentifier (der = APOSTROPHE)? #VariableExpression 
 	| value=number	#ConstantExpression
-	| '#' id=ID LPAREN (exp=expression)* RPAREN #MacroExpression
-	| SUM LSQR index = ID E lbound=expression COMMA rbound=expression RSQR LCRL summationExp=expression RCRL #SummationExpression
-	| LCRL condition=boolExpression RCRL QUESTIONMARK LCRL first=expression RCRL COLON LCRL second=expression RCRL #TernaryOperatorExpression
+	| '#' id=varIdentifier (LPAREN (expression)* RPAREN)? #MacroExpression
+	| SUM LPAREN  iterator = ID IN LSQR bounds=loopBounds RSQR RPAREN LCRL  summationExp=expression RCRL #SummationExpression
+	| LCRL condition=boolExpression QUESTIONMARK first=expression COLON second=expression RCRL #TernaryOperatorExpression
 	;
 
 functionArguments: expression (COMMA expression)* | ;
@@ -60,24 +62,31 @@ fragment UPPERCASE  : [A-Z] ;
 fragment DIGIT: [0-9] ;
 
 T0 : '(t0)';
-ZEROSQR: '[0]';
 SET: 'set';
 ON: 'on';
 FROM: 'from';
 DER : 'der';
 TERMINAL:'terminal';
+TRUE: 'true';
+FALSE: 'false';
 SUM: 'sum';
 MACRO: 'macro';
+STATE: 'state';
 FOR: 'for';
 IN: 'in';
 IF: 'if';
 ELSE: 'else';
 LOCAL: 'local';
 CONSTANT: 'constant';
+OR                  : '||'| 'or' ;
+AND                 : '&&'| 'and' ;
+NOT                 : '!'| 'not' ;
+LSQR			    : '[' ;
+RSQR			    : ']' ;
 
 FLOAT: (DIGIT+ DOT DIGIT*) ([Ee][+-]? DIGIT+)?
 	   |DOT DIGIT+ ([Ee][+-]? DIGIT+)?
-		|DIGIT+ ([Ee] [+-]? DIGIT+)?
+		|DIGIT+ ([Ee] [+-]? DIGIT+)
 		;
 INT: DIGIT+ ; 
 ID: [_]*(LOWERCASE|UPPERCASE)[A-Za-z0-9_]*;
@@ -97,20 +106,14 @@ LE                  : '<=' ;
 GE                  : '>=' ;
 NE                  : '!=' ;
 E                   : '=' ;
-OR                  : '||'|'or' ;
-AND                 : '&&'|'and' ;
-NOT                 : '!'|'not' ;
 SEMICOLON			: ';' ;
 COLON				: ':' ;
-LSQR			    : '[' ;
-RSQR			    : ']' ;
 LCRL			    : '{' ;
 RCRL			    : '}' ;
-APOSTROPHE			:'\'' ;
+APOSTROPHE			: '\'' ;
 QUESTIONMARK		: '?' ;
 
 
-STRING	: '"' .*? '"'|'\'' .*? '\'';
 NEWLINE	: ('\r'? '\n' | '\r')+ -> skip;
 WHITESPACE : (' ' | '\t')+ -> skip ;
 COMMENT 

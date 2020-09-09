@@ -1,12 +1,12 @@
 import {
     DAEVector
-} from "../../solver";
+} from "../../daeVector";
 import { EDAESolver } from "../../edaeSolver";
 import { EDAESystem } from "../../edaeSystem";
 import { vector } from "../../../math/vector";
 import { matrix } from "../../../math/matrix";
 import { gauss } from "../../../math/gauss";
-import { NewtonSolver } from "../../../nonlinear/newton";
+import { NewtonSolver } from "../../../math/newton";
 
 /**
  * forward euler for explicit dae with index one
@@ -32,7 +32,6 @@ export class EDAE_IEuler extends EDAESolver{
     F = x_{n+1} - x_n - hf(x_{n+1},g(x_{n+1},t_{n+1}),t_{n+1}) = 0
     dFi/dx_{n+1}j = \delta_ij - h*df/dx - h*df/dz*dg/dx
     */
-    //TODO: TEST
     public makeStep(x:vector,z:vector,t:number,system:EDAESystem):DAEVector{
         let xNew = x.clone();
         let tNew = t + this.step;

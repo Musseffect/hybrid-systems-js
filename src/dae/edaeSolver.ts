@@ -1,5 +1,5 @@
 import { vector } from "../math/vector";
-import { DAEVector } from "./solver";
+import { DAEVector } from "./daeVector";
 import { EDAESystem } from "./edaeSystem";
 
 export abstract class EDAESolver {

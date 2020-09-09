@@ -1,12 +1,12 @@
 import {
     DAEVector
-} from "../../solver";
+} from "../../daeVector";
 import { IDAESolver } from "../../idaeSolver";
 import { IDAESystem } from "../../idaeSystem";
 import { vector } from "../../../math/vector";
 import { matrix } from "../../../math/matrix";
 import { gauss } from "../../../math/gauss";
-import {NewtonSolver} from "../../../nonlinear/newton";
+import {NewtonSolver} from "../../../math/newton";
 
 export class IDAE_EEuler extends IDAESolver{
     constructor(step:number,systemSolver:NewtonSolver){
@@ -66,8 +66,6 @@ export class IDAE_EEuler extends IDAESolver{
         return new DAEVector(xNew, zNew, tNew);
     }
 }
-
-    //TODO test both variants on lorenz and vanderpol
     /*
     df/dx_{n+1} = df/dx + df/ddx * 1/h
     df/dz_{n+1} = df/dz

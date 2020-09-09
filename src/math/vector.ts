@@ -139,4 +139,7 @@ export class vector{
             result += this.data[i]*this.data[i];
         return Math.sqrt(result);
     }
+    norm2Sqr():number{
+        return vector.dot(this,this);
+    }
 }

@@ -1,98 +1,28 @@
 import {vector} from "../math/vector";
 import { IDAEHybridSystem } from "./idaeHybridSystem";
-import { EDAEHybridSystem } from "./edaeHybridSystem";
+import { EDAEHybridSystem, EDAEHybridState } from "./edaeHybridSystem";
 import { IDAESolver } from "./IDAESolver";
 import { EDAESolver } from "./EDAESolver";
+import { DAEVector } from "./daeVector";
 
-
-export abstract class HybridState{
-    name:string;
-    links:HybridStateLink[];
-    terminal:boolean;
-    abstract f(x:vector,z:vector,t:number):vector;
-    abstract g(x:vector,z:vector,t:number):vector;
-    abstract dfdx(x:vector,z:vector,t:number):matrix;
-    abstract dfdz(x:vector,z:vector,t:number):matrix;
-}
-export interface HybridStateLink{
-    getNewState():number;
-    pr(x:vector,z:vector,t:number):boolean;
-    p(x:vector,z:vector,t:number):number;
-    dpdt(x:vector,z:vector,t:number):number;
-    dpdz(x:vector,z:vector,t:number):vector;
-    dpdx(x:vector,z:vector,t:number):vector;
-    setConditions(x:vector,z:vector,t:number):vector;
-}
-export class DAEVector{
-    x:vector;
-    z:vector;
-    t:number;
-    constructor(x:vector,z:vector,t:number){
-        this.x = x;
-        this.z = z;
-        this.t = t;
-    }
-}
-export class HybridSolution{
-    values:DAEVector[];
-    states:number[];
-    constructor(values:DAEVector[],states:number[]){
-        this.values = values;
-        this.states = states;
-    }
-}
-export interface AdaptiveStepStrategy{
-    findStepIDAE(x:vector,z:vector,t:number,solver:IDAESolver,system:IDAEHybridSystem):number;
-    findStepEDAE(x:vector,z:vector,t:number,system:EDAEHybridSystem):number;
-}
-export interface EventDetector{
+export interface EventDetection{
     checkEventIDAE(oldValues:DAEVector,curValues:DAEVector,solver:IDAESolver,system:IDAEHybridSystem):boolean;
     checkEventEDAE(oldValues:DAEVector,curValues:DAEVector,solver:EDAESolver,system:EDAEHybridSystem):boolean;
 }
-export class AdaptiveStepNewton implements AdaptiveStepStrategy{
-    gamma:number;
-    minStep:number;
-    constructor(gamma:number,minStep:number){
-        this.gamma = gamma;
-        this.minStep = minStep;
-    }
-    //TODO Test
-    findStepIDAE(x:vector,z:vector,t:number,solver:IDAESolver,system:IDAEHybridSystem):number{
-        let step = 10e8;
-        let links = system.getCurrentLinks();
-        links.forEach((link)=>
-        {
-            let dxdt = solver.solve_dx(x,z,t,system);
-            let dzdt = solver.solve_dzdt(dxdt,x,z,t,system);
-            let denom = vector.dot(link.dpdx(x,z,t),dxdt) + vector.dot(link.dpdz(x,z,t),dzdt) + link.dpdt(x,z,t);
-            let h = -this.gamma * link.p(x,z,t)/denom;
-            step = (h<0||isNaN(h)?step:Math.min(step,h));
-        });
-        return Math.max(step,this.minStep);
-    }
-    //TODO Test
-    findStepEDAE(x: vector, z: vector, t: number, system: EDAEHybridSystem): number {
-        let step = 10e8;
-        let links = system.getCurrentLinks();
-        links.forEach((link)=>
-        {
-            let dxdt = system.f(x,z,t);
-            let dzdt:vector=system.dgdt(x,t).addSelf(system.dgdx(x,t).multVec(dxdt));
-            let denom = vector.dot(link.dpdx(x,z,t),dxdt) + vector.dot(link.dpdz(x,z,t),dzdt) + link.dpdt(x,z,t);
-            let h = -this.gamma * link.p(x,z,t)/denom;
-            step = (h<0||isNaN(h)?step:Math.min(step,h));
-        });
-        return Math.max(step,this.minStep);
-    }
-
-}
-export class EventDetectorSimple implements EventDetector{
-    //TODO Test
+export class EventDetectionSimple implements EventDetection{
+    /**
+     * Event detection for implicit dae hybrid system
+     * @param oldValues values at t
+     * @param curValues values at t+h, used to store initial values in case of state change
+     * @param solver implicit dae solver
+     * @param system hybrid system
+     * @returns true when state has changed
+     */
     checkEventIDAE(oldValues:DAEVector,curValues:DAEVector,solver:IDAESolver,system:IDAEHybridSystem):boolean{
-        //throw new Error("Method not implemented.");
         let value = 10e8;
         let index = -1;
-        let links = system.getCurrentLinks();
+        let state = system.getCurrentState();
+        let links = state.getLinks();
         links.forEach((link,id)=>
         {
             let p = link.p(curValues.x,curValues.z,curValues.t);
@@ -103,16 +33,24 @@ export class EventDetectorSimple implements EventDetector{
         });
         if(index!=-1){
             curValues.x = links[index].setConditions(curValues.x,curValues.z,curValues.t);
+            system.setCurrentState(links[index].getNewState());
             return true;
         }
         return false;
     }
-    //TODO Test
+    /**
+     * Event detection for explicit dae hybrid system
+     * @param oldValues values at t
+     * @param curValues values at t+h, used to store initial values in case of state change
+     * @param solver explicit dae solver
+     * @param system hybrid system
+     * @returns true when state has changed
+     */
     checkEventEDAE(oldValues: DAEVector, curValues: DAEVector, solver: EDAESolver, system: EDAEHybridSystem): boolean {
-        //throw new Error("Method not implemented.");
         let value = 10e8;
         let index = -1;
-        let links = system.getCurrentLinks();
+        let state = system.getCurrentState();
+        let links = state.getLinks();
         links.forEach((link,id)=>
         {
             let p = link.p(curValues.x,curValues.z,curValues.t);
@@ -123,6 +61,7 @@ export class EventDetectorSimple implements EventDetector{
         });
         if(index!=-1){
             curValues.x = links[index].setConditions(curValues.x,curValues.z,curValues.t);
+            system.setCurrentState(links[index].getNewState());
             return true;
         }
         return false;
@@ -132,7 +71,7 @@ export class EventDetectorSimple implements EventDetector{
  * Event detection on time step interval with newton method for cases, when signs of event condition function doesn't change and bisection method
  * for cases with change of sign
  */
-export class EventDetectorComplex implements EventDetector
+export class EventDetectionComplex implements EventDetection
 {
     newtonIterations:number = 30;
     relTol:number = 1e-6;
@@ -151,11 +90,19 @@ export class EventDetectorComplex implements EventDetector
         this.timeAbsTol = timeAbsTol;
         this.timeRelTol = timeRelTol;
     }
-    //TODO Test
+    /**
+     * Event detection for implicit dae hybrid system
+     * @param oldValues values at t
+     * @param curValues values at t+h, used to store initial values in case of state change
+     * @param solver implicit dae solver
+     * @param system hybrid system
+     * @returns true when state has changed
+     */
     checkEventIDAE(oldValues:DAEVector,curValues:DAEVector,solver:IDAESolver,system:IDAEHybridSystem):boolean{
         let time = 10e8;
         let index = -1;
-        let links = system.getCurrentLinks();
+        let state = system.getCurrentState();
+        let links = state.getLinks();
         let step = curValues.t - oldValues.t;
         let dx = vector.sub(curValues.x,oldValues.x).scaleSelf(1/step);
         let dz = vector.sub(curValues.z,oldValues.z).scaleSelf(1/step);
@@ -178,7 +125,7 @@ export class EventDetectorComplex implements EventDetector
             let x = oldValues.x;
             let z = oldValues.z;
             let flag = false;
-            //newton
+            //Newton method for root finding
             for(let i=0;i<this.newtonIterations;i++){
                 let dpdt = vector.dot(link.dpdx(x,z,t),dx) + 
                 vector.dot(link.dpdz(x,z,t),dz) + link.dpdt(x,z,t);
@@ -232,21 +179,29 @@ export class EventDetectorComplex implements EventDetector
         if(index!=-1){
             let x = vector.mix(oldValues.x,curValues.x,(time-oldValues.t)/step);
             let z = vector.mix(oldValues.z,curValues.z,(time-oldValues.t)/step);
-            z = solver.solve_z(x,z,time,system);
+            z = solver.solve_z(x,z,time,state);
             curValues.x = links[index].setConditions(x,z,time);
             curValues.t = time;
-            curValues.z = solver.solve_z(curValues.x,z,curValues.t,system);
+            curValues.z = solver.solve_z(curValues.x,z,curValues.t,state);
             system.setCurrentState(links[index].getNewState());
             //curValues.z = z;
             return true;
         }
         return false;
     }
-    //Tested
+    /**
+     * Event detection for explicit dae hybrid system
+     * @param oldValues values at t
+     * @param curValues values at t+h, used to store initial values in case of state change
+     * @param solver explicit dae solver
+     * @param system hybrid system
+     * @returns true when state has changed
+     */
     checkEventEDAE(oldValues: DAEVector, curValues: DAEVector, solver: EDAESolver, system: EDAEHybridSystem): boolean {
         let time = 10e8;
         let index = -1;
-        let links = system.getCurrentLinks();
+        let state = system.getCurrentState();
+        let links = state.getLinks();
         let step = curValues.t - oldValues.t;
         let dx = vector.sub(curValues.x,oldValues.x).scaleSelf(1/step);
         let dz = vector.sub(curValues.z,oldValues.z).scaleSelf(1/step);
@@ -323,10 +278,10 @@ export class EventDetectorComplex implements EventDetector
         if(index!=-1){
             let x = vector.mix(oldValues.x,curValues.x,(time-oldValues.t)/step);
             //let z = vector.mix(oldValues.z,curValues.z,(time-oldValues.t)/step);
-            let z = system.g(x,time);
+            let z = state.g(x,time);
             curValues.x = links[index].setConditions(x,z,time);
             curValues.t = time;
-            curValues.z = system.g(curValues.x,curValues.t);
+            curValues.z = state.g(curValues.x,curValues.t);
             system.setCurrentState(links[index].getNewState());
             //curValues.z = z;
             return true;

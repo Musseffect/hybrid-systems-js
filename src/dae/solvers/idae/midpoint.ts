@@ -1,12 +1,12 @@
 import {
     DAEVector
-} from "../../solver";
+} from "../../daeVector";
 import { IDAESolver } from "../../idaeSolver";
 import { IDAESystem } from "../../idaeSystem";
 import { vector } from "../../../math/vector";
 import { matrix } from "../../../math/matrix";
 import { gauss } from "../../../math/gauss";
-import { NewtonSolver } from "../../../nonlinear/newton";
+import { NewtonSolver } from "../../../math/newton";
 /*
 explicit
     x_{n+1} = x_n + h f(x_n+0.5h*f(x_n, t_n), t_n + 0.5*h)
@@ -38,7 +38,6 @@ export class IDAE_EMidpoint extends IDAESolver{
     constructor(step:number,systemSolver:NewtonSolver){
             super(step,systemSolver);
     }
-    //TODO: TEST
     public makeStep(x: vector, z: vector, t: number, system: IDAESystem): DAEVector {
         let x1 = this.solve_dx(x,z,t,system).scaleSelf(0.5*this.step).addSelf(x);
         let z1 = this.solve_z(x1,z,t + 0.5*this.step,system);
@@ -76,7 +75,6 @@ export class IDAE_IMidpoint extends IDAESolver{
     constructor(step:number,systemSolver:NewtonSolver){
             super(step,systemSolver);
     }
-    //TODO: TEST
     public makeStep(x: vector, z: vector, t: number, system: IDAESystem): DAEVector {
 
         /*let xz0 = vector.concat([x,z]);

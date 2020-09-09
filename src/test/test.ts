@@ -1,31 +1,28 @@
-import { 
-    DAEVector, 
-    HybridState,
-    HybridStateLink,
-    AdaptiveStepNewton,
-    EventDetectorComplex,
-    EventDetectorSimple } from "./solver";
-import {IDAEHybridSystem} from "./idaeHybridSystem";
-import {EDAEHybridSystem} from "./edaeHybridSystem";
-import { EDAEHybridSolver } from "./EDAEHybridSolver";
-import { IDAEHybridSolver } from "./IDAEHybridSolver";
-import { EDAESolver } from "./EDAESolver";
-import { IDAESolver } from "./IDAESolver";
-import { EDAESystem } from "./EDAESystem";
-import { IDAESystem } from "./IDAESystem";
+import { HybridStateLink } from "../dae/hybridStateLink";
+import {AdaptiveStepNewton, AdaptiveStepStrategy} from "../dae/adaptiveStep";
+import {EventDetectionComplex, EventDetectionSimple, EventDetection} from "../dae/eventDetection";
+import {DAEVector} from "../dae/daeVector";
+import {IDAEHybridSystem, IDAEHybridState} from "../dae/idaeHybridSystem";
+import {EDAEHybridSystem, EDAEHybridState} from "../dae/edaeHybridSystem";
+import { EDAEHybridSolver } from "../dae/edaeHybridSolver";
+import { IDAEHybridSolver } from "../dae/idaeHybridSolver";
+import { EDAESolver } from "../dae/edaeSolver";
+import { IDAESolver } from "../dae/idaeSolver";
+import { EDAESystem } from "../dae/edaeSystem";
+import { IDAESystem } from "../dae/idaeSystem";
 import { vector } from "../math/vector";
 import { matrix } from "../math/matrix";
 import { 
     EDAE_EEuler, 
     EDAE_IEuler
-} from "./solvers/edae/euler";
+} from "../dae/solvers/edae/euler";
 import { 
     IDAE_EEuler,
     IDAE_IEuler 
-} from "./solvers/idae/euler";
+} from "../dae/solvers/idae/euler";
 import $ from "jquery";
-import { EDAE_IMidpoint, EDAE_EMidpoint } from "./solvers/edae/midpoint";
-import { EDAE_ETrapezoidal, EDAE_ITrapezoidal } from "./solvers/edae/trapezoidal";
+import { EDAE_IMidpoint, EDAE_EMidpoint } from "../dae/solvers/edae/midpoint";
+import { EDAE_ETrapezoidal, EDAE_ITrapezoidal } from "../dae/solvers/edae/trapezoidal";
 import { 
     EDAE_RK4, 
     EDAE_RK4_2,
@@ -47,7 +44,7 @@ import {
     EDAE_MidpointEuler, 
     EDAE_RK6, 
     EDAE_RK6_2, 
-    EDAE_RK8 } from "./solvers/edae/rk";
+    EDAE_RK8 } from "../dae/solvers/edae/rk";
 import{
     IDAE_RK4,
     IDAE_RK4_2,
@@ -70,51 +67,66 @@ import{
     IDAE_RK6, 
     IDAE_RK6_2, 
     IDAE_RK8
-    } from "./solvers/idae/rk";
-import { IDAE_EMidpoint, IDAE_IMidpoint } from "./solvers/idae/midpoint";
-import { IDAE_ETrapezoidal, IDAE_ITrapezoidal } from "./solvers/idae/trapezoidal";
+    } from "../dae/solvers/idae/rk";
+import { IDAE_EMidpoint, IDAE_IMidpoint } from "../dae/solvers/idae/midpoint";
+import { IDAE_ETrapezoidal, IDAE_ITrapezoidal } from "../dae/solvers/idae/trapezoidal";
 import { 
     EDAE_BDF2,
     EDAE_BDF3,
     EDAE_BDF4,
     EDAE_BDF5,
-    EDAE_BDF6 } from "./solvers/edae/bdf";
+    EDAE_BDF6 } from "../dae/solvers/edae/bdf";
 import { 
     IDAE_BDF2,
     IDAE_BDF3,
     IDAE_BDF4,
     IDAE_BDF5,
-    IDAE_BDF6 } from "./solvers/idae/bdf";
+    IDAE_BDF6 } from "../dae/solvers/idae/bdf";
 import {
     EDAE_AM2,
     EDAE_AM3,
     EDAE_AM4,
     EDAE_AM5,
     EDAE_AM6
-} from "./solvers/edae/adams-moulton";
+} from "../dae/solvers/edae/adams-moulton";
 import {
     IDAE_AM2,
     IDAE_AM3,
     IDAE_AM4,
     IDAE_AM5,
     IDAE_AM6
-} from "./solvers/idae/adams-moulton";
+} from "../dae/solvers/idae/adams-moulton";
 import {
     EDAE_AB2,
     EDAE_AB3,
     EDAE_AB4,
     EDAE_AB5,
     EDAE_AB6
-} from "./solvers/edae/adams-bashforth";
+} from "../dae/solvers/edae/adams-bashforth";
 import {
     IDAE_AB2,
     IDAE_AB3,
     IDAE_AB4,
     IDAE_AB5,
     IDAE_AB6
-} from "./solvers/idae/adams-bashforth";
-import { NewtonSolver } from "../nonlinear/newton";
+} from "../dae/solvers/idae/adams-bashforth";
+import { NewtonSolver } from "../math/newton";
 import  {ui} from "../ui";
+import { DAECompiler } from "../compiler/compiler";
+import { CompilerError } from "../compiler/compilerError";
+import { HybridSystemCompiler } from "../compiler/hybridCompiler";
+import { TextPosition } from "../compiler/astNode";
+import { ISimplificationAlgorithm } from "../curveSimplification/ISimplificationAlgorithm";
+import { DouglasPeuckerSimplification } from "../curveSimplification/douglasPeuckerSimplification";
+import { PerpendicularDistanceSimplification } from "../curveSimplification/perpendicularDistanceSimplification";
+import { MaxPointsSimplification } from "../curveSimplification/maxPointsSimplification";
+import { RadialDistanceSimplification } from "../curveSimplification/radialDistanceSimplification";
+import { LangSimplification } from "../curveSimplification/langSimplification";
+import { ReumannWitkamSimplification } from "../curveSimplification/reumannWitkamSimplification";
+import { OpheimSimplification } from "../curveSimplification/opheimSimplification";
+import { Expression } from "../compiler/expression";
+import { DouglasPeuckerNSimplification } from "../curveSimplification/douglasPeuckerNSimplification";
+import { NthPointSimplification } from "../curveSimplification/nthPointSimplification";
 
 
 
@@ -129,9 +141,9 @@ function solveExplicit(x0:vector,t0:number,t1:number,solver:EDAESolver,system:ED
     }
     return solution;
 }
-function solveImplicit(x0:vector,t0:number,t1:number,solver:IDAESolver,system:IDAESystem):DAEVector[]{
+function solveImplicit(x0:vector,z0:vector,t0:number,t1:number,solver:IDAESolver,system:IDAESystem):DAEVector[]{
     let solution:DAEVector[] = [];
-    let z0 = solver.solve_z(x0,vector.empty(system.length_z()),t0,system);
+    z0 = solver.solve_z(x0,z0,t0,system);
     let point:DAEVector = new DAEVector(x0,z0,t0);
     solution.push(point);
     for(let t = t0;t<=t1;t=point.t){
@@ -139,6 +151,40 @@ function solveImplicit(x0:vector,t0:number,t1:number,solver:IDAESolver,system:ID
         solution.push(point);
     }
     return solution;
+}
+
+export function plotExpression(t0:number,t1:number,dt:number,expression:Expression,label:string){
+    let trace:any = {
+        x: [],
+        y: [],
+        type:"scattergl",
+        mode: 'markers+lines',
+        name: label
+    };
+    for(let t = t0; t <=t1;t+=dt){
+        trace.x.push(t);
+        trace.y.push(expression.execute([t]));
+    }
+    //@ts-ignore
+    Plotly.addTraces('plot-area', [trace]);
+}
+
+
+export function handleErrors(e:any){
+    if(e instanceof CompilerError){
+        e.messages.forEach(function(item){
+            ui.addLogMessage(item.print());
+            ui.addErrorMessage(item.message,item.textPos);
+            console.log(item.print());
+        });
+    }else if(e instanceof Error){
+        ui.addLogMessage(e.message);
+        ui.addErrorMessage(e.message,TextPosition.invalid());
+        console.log(e.message);
+    }else{
+        ui.addLogMessage("Exception: "+e);
+        ui.addErrorMessage("Exception: "+e,TextPosition.invalid());
+    }
 }
 
 export class Test{
@@ -160,7 +206,7 @@ export class Test{
             ui.addLogMessage(label+": "+item.label);
             console.log(label+": "+item.label);
             try{
-                let values:DAEVector[] = solveImplicit(x0,t0,t1,item.method,system);
+                let values:DAEVector[] = solveImplicit(x0,vector.empty(system.length_z()),t0,t1,item.method,system);
                 Test.showOutput(values,xNames,zNames,label+" "+item.label);
             }catch(error){
                 console.log("Error during "+label+": "+error);
@@ -168,16 +214,15 @@ export class Test{
             }
         });
     }
-    static showOutput(values:DAEVector[],variableNamesDifferential:string[],variableNamesAlgebraic:string[],label:string):void{
+    static showOutput(values:DAEVector[],difVariables:string[],algVariables:string[],label:string):void{
         let data:any = [];
-        variableNamesDifferential.forEach(function(item:string|null,index:number){
+        difVariables.forEach(function(item:string|null,index:number){
             if(item ==null)
                 return; 
             let trace:any = {
                 x: [],
                 y: [],
                 type:"scattergl",
-                legendgroup:label,
                 mode: 'markers+lines',
                 name: label+": "+item
             };
@@ -189,14 +234,13 @@ export class Test{
             }
             data.push(trace);
         });
-        variableNamesAlgebraic.forEach(function(item:string|null,index:number){
+        algVariables.forEach(function(item:string|null,index:number){
             if(item == null)
                 return; 
             let trace:any = {
                 x: [],
                 y: [],
                 type:"scattergl",
-                legendgroup:label,
                 mode: 'markers+lines',
                 name: label+": "+item
             };
@@ -246,7 +290,8 @@ export class Test{
             width:$("#plot-area").width(),
             height:$("#plot-area").height(),
             paper_bgcolor: 'rgba(245,245,245,1)',
-            plot_bgcolor: 'rgba(245,245,245,1)'
+            plot_bgcolor: 'rgba(245,245,245,1)',
+            nticks:30
           };
           //@ts-ignore
           Plotly.newPlot('plot-area',[],layout,{responsive:true});
@@ -345,7 +390,8 @@ export class Test{
         ]
         try{
             this.initPlot();
-            this.testDalquist(EDAESolvers,IDAESolvers);//
+            this.testEDAECompiler();
+            //this.testDalquist(EDAESolvers,IDAESolvers);//
             //this.testVanDerPol(EDAESolvers,IDAESolvers);//
             //this.testLorenz(EDAESolvers,IDAESolvers);//
             //this.testIDAE(EDAESolvers,IDAESolvers);//
@@ -932,14 +978,11 @@ export class Test{
                 return new vector([x.get(0),-x.get(1)*this.k]);
             }
         }
-        class IDAEJumpingBall extends IDAEHybridSystem{
+        class IDAEJumpState extends IDAEHybridState{
             protected _g:number;
-            constructor(_g:number,k:number){
-                super();
-                this._g = _g;
-                this.currentState = 0;
-                let link = new JumpStateLink(1,k);
-                this.states = [{name:"init",links:[link],terminal:false},{name:"jump",links:[link],terminal:false}];
+            constructor(name:string,links:HybridStateLink[],terminal:false,g:number){
+                super(name,links,terminal);
+                this._g = g;
             }
             f(x:vector,dx:vector,z:vector,t:number):vector{
                 return new vector([
@@ -975,10 +1018,19 @@ export class Test{
                 return 0;
             }
         }
+        class IDAEJumpingBall extends IDAEHybridSystem{
+            constructor(g:number,k:number){
+                let link = new JumpStateLink(1,k);
+                let init = new IDAEJumpState("init",[link],false,g);
+                let jump = new IDAEJumpState("jump",[link],false,g);
+                super([init,jump]);
+                this.currentState = 0;
+            }
+        }
         let t1 = 23;
         let k = 0.8;
-        let eventDetectorSimple = new EventDetectorSimple();
-        let eventDetectorComplex = new EventDetectorComplex();
+        let eventDetectorSimple = new EventDetectionSimple();
+        let eventDetectorComplex = new EventDetectionComplex();
         let adaptiveStepStrategy = new AdaptiveStepNewton(0.95,1e-5);
         let idaeHybridSolver = new IDAEHybridSolver(eventDetectorComplex,adaptiveStepStrategy);
         let idaeSystem = new IDAEJumpingBall(10,k);
@@ -1063,25 +1115,11 @@ export class Test{
                 return new vector([x.get(0),-x.get(1)*this.k]);
             }
         }
-        /*
-            constant m = 1;
-            v(t0) = 0;
-            x(t0) = 1;
-            x' = v;
-            v'= - mg;
-            state jump on (v<=0&&x<=0){
-                set v = -v;
-            } from init, jump;
-        */
-        class EDAEJumpingBall extends EDAEHybridSystem{
-            protected _g:number;
-            constructor(_g:number,k:number){
-                super();
-                this._g = _g;
-                this.currentState = 0;
-                this.states = [];
-                let link = new JumpStateLink(1,k);
-                this.states = [{name:"init",links:[link],terminal:false},{name:"jump",links:[link],terminal:false}];
+        class EDAEJumpState extends EDAEHybridState{
+            _g:number;
+            constructor(name:string,links:HybridStateLink[],terminal:false,g:number){
+                super(name,links,terminal);
+                this._g = g;
             }
             f(x:vector,z:vector,t:number):vector{
                 let _x = x.get(0);
@@ -1112,13 +1150,34 @@ export class Test{
             length_z():number{
                 return 0;
             }
+        }
+        /*
+            constant m = 1;
+            v(t0) = 0;
+            x(t0) = 1;
+            x' = v;
+            v'= - mg;
+            state jump on (v<=0&&x<=0){
+                set v = -v;
+            } from init, jump;
+        */
+        class EDAEJumpingBall extends EDAEHybridSystem{
+            constructor(g:number,k:number){
+                let link = new JumpStateLink(1,k);
+                let init = new EDAEJumpState("init",[link],false,g);
+                let jump = new EDAEJumpState("jump",[link],false,g);
+                super([init,jump]);
+                this.currentState = 0;
+                //this.states = [];
+                //this.states = [{name:"init",links:[link],terminal:false},{name:"jump",links:[link],terminal:false}];
+            }
         
         }
-        let t1 = 20;
+        let t1 = 23;
         let k = 0.8;
         let adaptiveStepStrategy = new AdaptiveStepNewton(0.95,1e-5);
-        let eventDetectorComplex = new EventDetectorComplex();
-        let eventDetectorSimple = new EventDetectorSimple();
+        let eventDetectorComplex = new EventDetectionComplex();
+        let eventDetectorSimple = new EventDetectionSimple();
         let initialState = new vector([10, 15]);
         let edaeeRK4Solver = new EDAE_RK4(1e-2);
         let edaeHybridSolver = new EDAEHybridSolver(eventDetectorComplex,adaptiveStepStrategy);
@@ -1174,9 +1233,220 @@ export class Test{
         let idaeeEulerSolver = new IDAE_EEuler(0.1,new NewtonSolver(160,0.05,1e-4,0.5));
         let idaeiEulerSolver = new IDAE_IEuler(0.05,new NewtonSolver(80,0.05,1e-4,0.75));
         let system = new AlgebraicProblem();
-        let IDAEESolution = solveImplicit(new vector([]),t0,t1,idaeeEulerSolver,system);     
-        let IDAEISolution = solveImplicit(new vector([]),t0,t1,idaeiEulerSolver,system);
+        let IDAEESolution = solveImplicit(new vector([]),vector.empty(system.length_z()),t0,t1,idaeeEulerSolver,system);     
+        let IDAEISolution = solveImplicit(new vector([]),vector.empty(system.length_z()),t0,t1,idaeiEulerSolver,system);
         Test.showOutput(IDAEESolution,[],["z"],"Algebraic problem IDAEE");
         Test.showOutput(IDAEISolution,[],["z"],"Algebraic problem IDAEI");
+    }
+    static testEDAECompiler():void{
+        ui.clearErrors();
+        Test.initPlot();
+        try{
+            let parameters = ui.getParameters();
+            let text:string = $("#text-input").val() as string;
+            let compiler = new DAECompiler();
+            let {system,x0,x,z} = compiler.compileExplicit(text);
+            
+            let solver = new EDAE_RK4(parameters.solver.step);
+            let t0 = parameters.solver.t0;
+            let t1 = parameters.solver.t0 + parameters.solver.time;
+            let solution = solveExplicit(x0,t0,t1,solver,system);
+            Test.showOutput(solution,x,z,"Test edae compiler");
+            ui.openTab("results");
+        }catch(e){
+            handleErrors(e);
+            ui.openTab("main");
+            ui.openTab("errors-tab");
+        }
+    }
+    static testIDAECompiler():void{
+        ui.clearErrors();
+        Test.initPlot();
+        try{
+            let parameters = ui.getParameters();
+            let text:string = $("#text-input").val() as string;
+            let compiler = new DAECompiler();
+            let {system,x0,x,z,z0} = compiler.compileImplicit(text);
+            let s = parameters.solver.implicitSystemSolver;
+            let solver = new IDAE_RK4(parameters.solver.step,
+                new NewtonSolver(s.iters,s.absTol,s.relTol,s.alpha,s.minIters));
+            let t0 = parameters.solver.t0;
+            let t1 = parameters.solver.t0 + parameters.solver.time;
+            let solution = solveImplicit(x0,z0,t0,t1,solver,system);
+            Test.showOutput(solution,x,z,"Test idae compiler");
+            ui.openTab("results");
+        }catch(e){
+            handleErrors(e);
+            ui.openTab("main");
+            ui.openTab("errors-tab");
+        }
+    }
+    static testExplicitHybridCompiler():void{
+        ui.clearErrors();
+        Test.initPlot();
+        try{
+            let text:string = $("#text-input").val() as string;
+            let compiler = new HybridSystemCompiler();
+            let sysDef = compiler.compileExplicit(text);
+            let parameters = ui.getParameters();
+            
+            let eventDetection:EventDetection;
+            if(parameters.eventDetection.zeroCrossing.enabled){
+                let params = parameters.eventDetection.zeroCrossing;
+                eventDetection = new EventDetectionComplex(
+                    params.newtonIters,
+                    params.relTol,params.absTol,params.newtonAlpha,
+                    params.bisectIters,params.timeAbsTol,params.timeRelTol);
+            }else{
+                eventDetection = new EventDetectionSimple();
+            }
+            let adaptiveStepStrategy:AdaptiveStepStrategy;
+            if(parameters.eventDetection.adaptiveStep.enabled){
+
+            }else{
+                adaptiveStepStrategy = null;
+            }
+            let t0 = parameters.solver.t0;
+            let t1 = t0 + parameters.solver.time;
+            let method = ui.methods[parameters.solver.method].edaeInit(parameters);
+            let solver = new EDAEHybridSolver(eventDetection,adaptiveStepStrategy);
+            let solution = solver.solve(sysDef.x0,t0,t1,method,sysDef.system);
+            Test.showOutput(solution.values,sysDef.x,sysDef.z,"Test explicit hybrid compiler");
+            //ui.plotSolution(solution,sysDef.x,sysDef.z);
+            ui.openTab("results");
+        }catch(e){
+            handleErrors(e);
+            ui.openTab("main");
+            ui.openTab("errors-tab");
+        }
+    }
+    static testSimplification():void{
+        ui.clearErrors();
+        Test.initPlot();
+        let methods:{alg:ISimplificationAlgorithm,name:string}[] = [
+            {alg:new DouglasPeuckerSimplification(0.005),name:"douglasPeucker"},
+            {alg:new PerpendicularDistanceSimplification(0.01),name:"perpDist"},
+            //{alg:new MaxPointsSimplification(100),name:"maxPoints"},
+            {alg:new RadialDistanceSimplification(0.1),name:"radDist"},
+            {alg:new LangSimplification(0.1,4),name:"lang"},
+            {alg:new ReumannWitkamSimplification(0.1),name:"reumannWitkam"},
+            {alg:new OpheimSimplification(0.05,0.1),name:"opheim"},
+            {alg:new DouglasPeuckerNSimplification(100),name:"douglasPeuckerN"},
+            {alg:new NthPointSimplification(100),name:"Nth point simplification"}
+        ];
+        let data:DAEVector[] = [];
+        for(let i=0;i<1000;i++){
+            let t = i*0.01;
+            let x = Math.cos(t*6.0)*Math.exp(-2.*t);
+            data.push(new DAEVector(new vector([x]),new vector([]),t));
+        }
+        Test.showOutput(data,["x"],[],"sin output");
+        for(let i=0;i<methods.length;i++){
+            let res = methods[i].alg.simplify(data);
+            Test.showOutput(res,["x"],[],methods[i].name);
+            ui.addLogMessage(`${methods[i].name}: ${res.length} points`);
+        }
+        ui.openTab("results");
+    }
+    static testImplicitHybridCompiler():void{
+        ui.clearErrors();
+        Test.initPlot();
+        try{
+            let text:string = $("#text-input").val() as string;
+            let compiler = new HybridSystemCompiler();
+            let sysDef = compiler.compileImplicit(text);
+            let parameters = ui.getParameters();
+            
+            let eventDetection:EventDetection;
+            if(parameters.eventDetection.zeroCrossing.enabled){
+                let params = parameters.eventDetection.zeroCrossing;
+                eventDetection = new EventDetectionComplex(
+                    params.newtonIters,
+                    params.relTol,params.absTol,params.newtonAlpha,
+                    params.bisectIters,params.timeAbsTol,params.timeRelTol);
+            }else{
+                eventDetection = new EventDetectionSimple();
+            }
+            let adaptiveStepStrategy:AdaptiveStepStrategy;
+            if(parameters.eventDetection.adaptiveStep.enabled){
+
+            }else{
+                adaptiveStepStrategy = null;
+            }
+            let t0 = parameters.solver.t0;
+            let t1 = t0 + parameters.solver.time;
+            let method = ui.methods[parameters.solver.method].idaeInit(parameters);
+            let solver = new IDAEHybridSolver(eventDetection,adaptiveStepStrategy);
+            let solution = solver.solve(sysDef.x0,sysDef.z0,t0,t1,method,sysDef.system);
+            Test.showOutput(solution.values,sysDef.x,sysDef.z,"Test explicit hybrid compiler");
+            ui.openTab("results");
+        }catch(e){
+            if(e instanceof CompilerError){
+                e.messages.forEach(function(item){
+                    ui.addLogMessage(item.print());
+                    console.log(item.print());
+                });
+            }else if(e instanceof Error){
+                ui.addLogMessage(e.message);
+                console.log(e.message);
+            }else{
+                ui.addLogMessage("Exception: "+e);
+            }
+            ui.openTab("main");
+            ui.openTab("errors-tab");
+        }
+    }
+    static testWeissingerImplicit(){
+        class IWeissinger implements IDAESystem{
+            f(x:vector,dx:vector,z:vector,t:number):vector{
+                let _x = x.get(0);
+                let _dx = dx.get(0);
+                return new vector([
+                    t*Math.pow(_x,2)*Math.pow(_dx,3)-
+                    Math.pow(_x,3)*Math.pow(_dx,2)+
+                    t*(t*t+1)*_dx-t*t*_x
+                ]);
+            }
+            g(x:vector,z:vector,t:number):vector{
+                let _z = z.get(0);
+                return new vector([_z - Math.sqrt(t*t+0.5)]);
+            }
+            dfdx(x:vector,dx:vector,z:vector,t:number):matrix{
+                let _x = x.get(0);
+                let _dx = dx.get(0);
+                return new matrix(
+                    [
+                       2*t*_x*Math.pow(_dx,3)-3*Math.pow(_x*_dx,2)-t*t 
+                    ],1,1);
+            }
+            dfddx(x:vector,dx:vector,z:vector,t:number):matrix{
+                let _x = x.get(0);
+                let _dx = dx.get(0);
+                return new matrix([
+                    3*t*Math.pow(_x*_dx,2)-2*Math.pow(_x,3)*_dx+t*(t*t+1)
+                ],1,1);
+            }
+            dfdz(x:vector,dx:vector,z:vector,t:number):matrix{
+                return new matrix([],0,1);
+            }
+            dgdz(x:vector,z:vector,t:number):matrix{
+                return new matrix([1],1,1);
+            }
+            dgdx(x:vector,z:vector,t:number):matrix{
+                return new matrix([],1,0);
+            }
+            length_x():number{
+                return 1;
+            }
+            length_z():number{
+                return 1;
+            }
+        }
+        let t0 = 0;
+        let t1 = 1;
+        let system = new IWeissinger();
+        let solver = new IDAE_RK4(0.01,new NewtonSolver(20,1e-3,1e-5,0.95,3));
+        let solution = solveImplicit(new vector([Math.sqrt(3/2)]),new vector([0]),t0,t1,solver,system);  
+        Test.showOutput(solution,["x"],["z"],"Implicit weissinger");
     }
 }

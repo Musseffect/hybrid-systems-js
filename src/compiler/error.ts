@@ -1,15 +1,15 @@
-export default class Error{
-    line:number;
-    position:number;
+import { TextPosition } from "./astNode";
+
+export default class ErrorMessage{
+    textPos:TextPosition;
     message:string;
-    constructor(line:number,position:number,message:string){
-      this.line = line;
-      this.position = position;
+    constructor(textPos:TextPosition,message:string){
+      this.textPos = textPos;
       this.message = message;
     }
     print(){
-      if(this.line!=-1)
-        return `${this.message} at line:${this.line}, position:${this.position}`;
+      if(this.textPos.line!=-1)
+        return `${this.message} at line:${this.textPos.line}, position:${this.textPos.column}`;
       return this.message;
     }
   }

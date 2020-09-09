@@ -1,12 +1,12 @@
 import {
     DAEVector
-} from "../../solver";
+} from "../../daeVector";
 import { EDAESolver } from "../../edaeSolver";
 import { EDAESystem } from "../../edaeSystem";
 import { vector } from "../../../math/vector";
 import { matrix } from "../../../math/matrix";
 import { gauss } from "../../../math/gauss";
-import { NewtonSolver } from "../../../nonlinear/newton";
+import { NewtonSolver } from "../../../math/newton";
 /*
 explicit
     x_{n+1} = x_n + h f(x_n+0.5h*f(x_n,t_n),t_n + 0.5*h)
@@ -41,7 +41,6 @@ export class EDAE_EMidpoint extends EDAESolver{
     constructor(step:number){
         super(step);
     }
-    //TODO: TEST
     public makeStep(x: vector, z: vector, t: number, system: EDAESystem): DAEVector {
         let k = system.f(x,z,t).scaleSelf(this.step*0.5).addSelf(x);
         let kz = system.g(k,t+0.5*this.step);
@@ -64,7 +63,6 @@ export class EDAE_IMidpoint extends EDAESolver{
         x_{n+1} - x_n - h * f(0.5*(x_n+x_{n+1}),0.5*(z_n + g(x_{n+1],t_{n+1})),t_n + 0.5*j)=0
         dF_i/dx_{n+1}_j = \delta_ij - 0.5*h * df/dx - 0.5*h*df/dz * dg/dx(x_{n+1],t_{n+1})
      */
-    //TODO: TEST
     public makeStep(x: vector, z: vector, t: number, system: EDAESystem): DAEVector {
         let xNew = x.clone().addSelf(vector.scale(system.f(x,z,t),this.step));//better approximation for xNew
         let tNew = t+this.step;

@@ -1,25 +1,17 @@
 import { vector } from "../math/vector";
 import { matrix } from "../math/matrix";
 import { gauss } from "../math/gauss";
-import { IDAEHybridSystem } from "./idaeHybridSystem";
+import { IDAEHybridState } from "./idaeHybridSystem";
 import { IDAESystem } from "./idaeSystem";
-import { DAEVector } from "./solver";
-import {NewtonSolver} from "../nonlinear/newton";
+import { DAEVector } from "./daeVector";
+import {NewtonSolver} from "../math/newton";
 
 export abstract class IDAESolver {
     protected systemSolver:NewtonSolver;
-    /*protected iNewtonIterations: number;
-    protected iFAbsTol: number;
-    protected iFRelTol: number;
-    protected iAlpha: number;*/
     protected step: number;
-    public constructor(step: number, newtonSolver:NewtonSolver/*newtonIterations: number, fAbsTol: number, fRelTol: number, alpha: number*/) {
+    public constructor(step: number, newtonSolver:NewtonSolver) {
         this.step = step;
         this.systemSolver = newtonSolver;
-        /*this.iNewtonIterations = newtonIterations;
-        this.iFAbsTol = fAbsTol;
-        this.iFRelTol = fRelTol;
-        this.iAlpha = alpha;*/
     }
     public setStep(value: number) {
         this.step = value;
@@ -78,15 +70,15 @@ export abstract class IDAESolver {
         }
         throw "divergence at solve_dx";*/
     }
-    public solve_dzdt(dx: vector, x: vector, z: vector, t: number, system: IDAEHybridSystem): vector {
-        if (system.length_z() == 0)
+    public solve_dzdt(dx: vector, x: vector, z: vector, t: number, state: IDAEHybridState): vector {
+        if (state.length_z() == 0)
             return z;
-        let A: matrix = system.dgdz(x, z, t);
+        let A: matrix = state.dgdz(x, z, t);
         let b: vector;
-        if (system.length_x() != 0)
-            b = system.dgdx(x, z, t).multVec(dx).addSelf(system.dgdt(x, z, t)).scaleSelf(-1);
+        if (state.length_x() != 0)
+            b = state.dgdx(x, z, t).multVec(dx).addSelf(state.dgdt(x, z, t)).scaleSelf(-1);
         else
-            b = system.dgdt(x, z, t).scaleSelf(-1);
+            b = state.dgdt(x, z, t).scaleSelf(-1);
         //solve linear system
         //dg/dz dz/dt = -dg/dx x' - dg/dt
         let dzdt = gauss.solve(A, b);

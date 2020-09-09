@@ -1,12 +1,12 @@
 import {
     DAEVector
-} from "../../solver";
+} from "../../daeVector";
 import { IDAESolver } from "../../idaeSolver";
 import { IDAESystem } from "../../idaeSystem";
 import { vector } from "../../../math/vector";
 import { matrix } from "../../../math/matrix";
 import { gauss } from "../../../math/gauss";
-import { NewtonSolver } from "../../../nonlinear/newton";
+import { NewtonSolver } from "../../../math/newton";
 /*
 explicit
     x_{n+1} = x_n + 0.5*h(f(x_n,t_n)+f(x_n+hf(x_n,t_n),t_{n+1}))
@@ -41,7 +41,6 @@ export class IDAE_ETrapezoidal extends IDAESolver{
     constructor(step:number,systemSolver:NewtonSolver){
             super(step,systemSolver);
     }
-    //TODO: TEST
     public makeStep(x: vector, z: vector, t: number, system: IDAESystem): DAEVector {
         //1.    f(x_n,k_1,z_n,t_n) = 0
         let x1 = this.solve_dx(x,z,t,system).scaleSelf(this.step).addSelf(x);
@@ -78,7 +77,6 @@ export class IDAE_ITrapezoidal extends IDAESolver{
         dFz/dx_{n+1} = dg/dx
         dFz/dz_{n+1} = dg/dz
     }*/
-    //TODO: TEST
     public makeStep(x: vector, z: vector, t: number, system: IDAESystem): DAEVector {
 
         /*let k1 = this.solve_dx(x,z,t,system);

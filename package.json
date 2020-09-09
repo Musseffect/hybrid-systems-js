@@ -11,15 +11,16 @@
         "build:prod": "webpack --mode production --config webpack.prod.js",
         "watch:dev": "webpack --watch --mode development --config webpack.dev.js",
         "start": "webpack-dev-server --mode development --host 0.0.0.0",
-        "publish": "todo"
+        "publish": "gh-pages -d dist -b host"
     },
     "keywords": [],
     "devDependencies": {
+        "gh-pages": "^3.1.0",
         "source-map-loader": "^0.2.4",
-        "webpack": "4.42.1",
-        "webpack-cli": "^3.3.11",
         "ts-loader": "^6.0.4",
         "ts-node": "^8.3.0",
+        "webpack": "4.42.1",
+        "webpack-cli": "^3.3.11",
         "webpack-dev-server": "^3.11.0"
     },
     "dependencies": {

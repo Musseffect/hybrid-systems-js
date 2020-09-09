@@ -2,8 +2,8 @@ import {IDAESolver} from "../../idaeSolver";
 import { vector } from "../../../math/vector";
 import { matrix } from "../../../math/matrix";
 import { IDAESystem } from "../../idaeSystem";
-import { DAEVector } from "../../solver";
-import { NewtonSolver } from "../../../nonlinear/newton";
+import { DAEVector } from "../../daeVector";
+import { NewtonSolver } from "../../../math/newton";
 import { gauss} from "../../../math/gauss";
 import {IDAE_GAUSSLEGENDRE6,IDAE_RADAUIIA3,IDAE_RADAUIIA5} from "../idae/rk";
 

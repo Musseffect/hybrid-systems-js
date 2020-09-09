@@ -1,6 +1,6 @@
 import {
     DAEVector
-} from "../../solver";
+} from "../../daeVector";
 import { EDAESolver } from "../../edaeSolver";
 import { EDAESystem } from "../../edaeSystem";
 import { vector } from "../../../math/vector";

@@ -2,7 +2,7 @@ import {EDAESolver} from "../../edaeSolver";
 import { vector } from "../../../math/vector";
 import { matrix } from "../../../math/matrix";
 import { EDAESystem } from "../../edaeSystem";
-import { DAEVector } from "../../solver";
+import { DAEVector } from "../../daeVector";
 import {EDAE_RK4,EDAE_RK6} from "../edae/rk";
 
 class EDAE_ADAMS_BASHFORTH extends EDAESolver{

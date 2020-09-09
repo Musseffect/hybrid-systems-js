@@ -1,4 +1,3 @@
-import {Test} from "./dae/test";
 import {ui} from "./ui";
 import $ from "jquery";
 
@@ -29,18 +28,5 @@ window.onresize = function(){
 
 ui.openTab("run");
 ui.addLogMessage("Start");
-$("#run-button").click(function(){
-  Test.runTests();
-  let daeForm:string = $("dae-form").val() as string;
-  /*
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  */
-})
+ui.loadDaeExample("stiff-equation");
+ui.showDebug();

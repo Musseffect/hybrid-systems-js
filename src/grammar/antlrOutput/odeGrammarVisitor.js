@@ -12,14 +12,14 @@ function odeGrammarVisitor() {
 odeGrammarVisitor.prototype = Object.create(antlr4.tree.ParseTreeVisitor.prototype);
 odeGrammarVisitor.prototype.constructor = odeGrammarVisitor;
 
-// Visit a parse tree produced by odeGrammarParser#ode.
-odeGrammarVisitor.prototype.visitOde = function(ctx) {
+// Visit a parse tree produced by odeGrammarParser#dae.
+odeGrammarVisitor.prototype.visitDae = function(ctx) {
   return this.visitChildren(ctx);
 };
 
 
-// Visit a parse tree produced by odeGrammarParser#odeStatement.
-odeGrammarVisitor.prototype.visitOdeStatement = function(ctx) {
+// Visit a parse tree produced by odeGrammarParser#daeStatement.
+odeGrammarVisitor.prototype.visitDaeStatement = function(ctx) {
   return this.visitChildren(ctx);
 };
 
@@ -36,14 +36,26 @@ odeGrammarVisitor.prototype.visitNumber = function(ctx) {
 };
 
 
-// Visit a parse tree produced by odeGrammarParser#statement.
-odeGrammarVisitor.prototype.visitStatement = function(ctx) {
+// Visit a parse tree produced by odeGrammarParser#hybridStatement.
+odeGrammarVisitor.prototype.visitHybridStatement = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
+// Visit a parse tree produced by odeGrammarParser#index.
+odeGrammarVisitor.prototype.visitIndex = function(ctx) {
   return this.visitChildren(ctx);
 };
 
 
 // Visit a parse tree produced by odeGrammarParser#varIdentifier.
 odeGrammarVisitor.prototype.visitVarIdentifier = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
+// Visit a parse tree produced by odeGrammarParser#loopStatement.
+odeGrammarVisitor.prototype.visitLoopStatement = function(ctx) {
   return this.visitChildren(ctx);
 };
 
@@ -66,6 +78,12 @@ odeGrammarVisitor.prototype.visitMacroArguments = function(ctx) {
 };
 
 
+// Visit a parse tree produced by odeGrammarParser#loopBounds.
+odeGrammarVisitor.prototype.visitLoopBounds = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
 // Visit a parse tree produced by odeGrammarParser#loop.
 odeGrammarVisitor.prototype.visitLoop = function(ctx) {
   return this.visitChildren(ctx);
@@ -84,14 +102,8 @@ odeGrammarVisitor.prototype.visitSetter = function(ctx) {
 };
 
 
-// Visit a parse tree produced by odeGrammarParser#algebraicCondition.
-odeGrammarVisitor.prototype.visitAlgebraicCondition = function(ctx) {
-  return this.visitChildren(ctx);
-};
-
-
-// Visit a parse tree produced by odeGrammarParser#differentialCondition.
-odeGrammarVisitor.prototype.visitDifferentialCondition = function(ctx) {
+// Visit a parse tree produced by odeGrammarParser#initialCondition.
+odeGrammarVisitor.prototype.visitInitialCondition = function(ctx) {
   return this.visitChildren(ctx);
 };
 
@@ -102,8 +114,14 @@ odeGrammarVisitor.prototype.visitConstantStatement = function(ctx) {
 };
 
 
-// Visit a parse tree produced by odeGrammarParser#event.
-odeGrammarVisitor.prototype.visitEvent = function(ctx) {
+// Visit a parse tree produced by odeGrammarParser#stateStatement.
+odeGrammarVisitor.prototype.visitStateStatement = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
+// Visit a parse tree produced by odeGrammarParser#stateDef.
+odeGrammarVisitor.prototype.visitStateDef = function(ctx) {
   return this.visitChildren(ctx);
 };
 
@@ -114,14 +132,14 @@ odeGrammarVisitor.prototype.visitStateTransition = function(ctx) {
 };
 
 
-// Visit a parse tree produced by odeGrammarParser#unaryOperator.
-odeGrammarVisitor.prototype.visitUnaryOperator = function(ctx) {
+// Visit a parse tree produced by odeGrammarParser#BoolConstant.
+odeGrammarVisitor.prototype.visitBoolConstant = function(ctx) {
   return this.visitChildren(ctx);
 };
 
 
-// Visit a parse tree produced by odeGrammarParser#BoolBinaryOperator.
-odeGrammarVisitor.prototype.visitBoolBinaryOperator = function(ctx) {
+// Visit a parse tree produced by odeGrammarParser#BoolUnaryOperator.
+odeGrammarVisitor.prototype.visitBoolUnaryOperator = function(ctx) {
   return this.visitChildren(ctx);
 };
 
@@ -132,14 +150,20 @@ odeGrammarVisitor.prototype.visitBracketBoolExpression = function(ctx) {
 };
 
 
-// Visit a parse tree produced by odeGrammarParser#BracketExpression.
-odeGrammarVisitor.prototype.visitBracketExpression = function(ctx) {
+// Visit a parse tree produced by odeGrammarParser#BBoolBinaryOperator.
+odeGrammarVisitor.prototype.visitBBoolBinaryOperator = function(ctx) {
   return this.visitChildren(ctx);
 };
 
 
-// Visit a parse tree produced by odeGrammarParser#DerivativeExpression.
-odeGrammarVisitor.prototype.visitDerivativeExpression = function(ctx) {
+// Visit a parse tree produced by odeGrammarParser#EBoolBinaryOperator.
+odeGrammarVisitor.prototype.visitEBoolBinaryOperator = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
+// Visit a parse tree produced by odeGrammarParser#BracketExpression.
+odeGrammarVisitor.prototype.visitBracketExpression = function(ctx) {
   return this.visitChildren(ctx);
 };
 

@@ -1,12 +1,12 @@
 import {
     DAEVector
-} from "../../solver";
+} from "../../daeVector";
 import { EDAESolver } from "../../edaeSolver";
 import { EDAESystem } from "../../edaeSystem";
 import { vector } from "../../../math/vector";
 import { matrix } from "../../../math/matrix";
 import { gauss } from "../../../math/gauss";
-import { NewtonSolver } from "../../../nonlinear/newton";
+import { NewtonSolver } from "../../../math/newton";
 
 
 /**
@@ -236,7 +236,6 @@ abstract class EDAE_IRKA extends EDAE_IRK{
         }
         return J;
     }
-    //TODO test
     public makeStep(x: vector, z: vector, t: number, system: EDAESystem): DAEVector {
         while(true){
             let shouldThrow = true;
@@ -291,7 +290,6 @@ abstract class EDAE_IRKA extends EDAE_IRK{
  * classic RK4
  */
 export class EDAE_RK4 extends EDAE_ERK{
-    //TODO: TEST
     constructor(step:number){
         super(step,
             [
@@ -305,7 +303,6 @@ export class EDAE_RK4 extends EDAE_ERK{
     }
 }
 export class EDAE_RK4_2 extends EDAE_ERK{
-    //TODO: TEST
     constructor(step:number){
         super(step,
             [
@@ -319,7 +316,6 @@ export class EDAE_RK4_2 extends EDAE_ERK{
     }
 }
 export class EDAE_RK4_RALSTON extends EDAE_ERK{
-    //TODO: TEST
     constructor(step:number){
         super(step,
             [
@@ -333,7 +329,6 @@ export class EDAE_RK4_RALSTON extends EDAE_ERK{
     }
 }
 export class EDAE_RK6 extends EDAE_ERK{
-    //TODO: TEST
     constructor(step:number){
         super(step,
             [
@@ -351,7 +346,6 @@ export class EDAE_RK6 extends EDAE_ERK{
 
 }
 export class EDAE_RK6_2 extends EDAE_ERK{
-    //TODO: TEST
     constructor(step:number){
         super(step,
             [
@@ -369,7 +363,6 @@ export class EDAE_RK6_2 extends EDAE_ERK{
 
 }
 export class EDAE_RK8 extends EDAE_ERK{
-    //TODO: TEST
     constructor(step:number){
         var root21=Math.sqrt(21);
         super(step,
@@ -394,7 +387,6 @@ export class EDAE_RK8 extends EDAE_ERK{
 
 
 export class EDAE_DOPRI5 extends EDAE_ERKA{
-    //TODO: TEST
     constructor(step:number,maxStep:number,errorTolerance:number){
         super(step,maxStep,5,errorTolerance,
             [
@@ -415,7 +407,6 @@ export class EDAE_DOPRI5 extends EDAE_ERKA{
  * BogackiShampine23
  */
 export class EDAE_BS23 extends EDAE_ERKA{
-    //TODO: TEST
     constructor(step:number,maxStep:number,errorTolerance:number){
         super(step,maxStep,3,errorTolerance,
             [
@@ -433,7 +424,6 @@ export class EDAE_BS23 extends EDAE_ERKA{
  * 
  */
 export class EDAE_HeunEuler extends EDAE_ERKA{
-    //TODO: TEST
     constructor(step:number,maxStep:number,errorTolerance:number){
         super(step,maxStep,2,errorTolerance,
             [
@@ -446,7 +436,6 @@ export class EDAE_HeunEuler extends EDAE_ERKA{
     }
 }
 export class EDAE_MidpointEuler extends EDAE_ERKA{
-    //TODO: TEST
     constructor(step:number,maxStep:number,errorTolerance:number){
         super(step,maxStep,2,errorTolerance,
             [
@@ -460,7 +449,6 @@ export class EDAE_MidpointEuler extends EDAE_ERKA{
 }
 
 export class EDAE_RADAUIA5 extends EDAE_IRK{
-    //TODO: TEST
     constructor(step:number,stepSolver:NewtonSolver){
         let root6=Math.sqrt(6);
         super(step,stepSolver,
@@ -476,7 +464,6 @@ export class EDAE_RADAUIA5 extends EDAE_IRK{
     }
 }
 export class EDAE_RADAUIIA3 extends EDAE_IRK{
-    //TODO: TEST
     constructor(step:number,stepSolver:NewtonSolver){
         let root6=Math.sqrt(6);
         super(step,stepSolver,
@@ -492,7 +479,6 @@ export class EDAE_RADAUIIA3 extends EDAE_IRK{
     
 }
 export class EDAE_RADAUIIA5 extends EDAE_IRK{
-    //TODO: TEST
     constructor(step:number,stepSolver:NewtonSolver){
         let root6=Math.sqrt(6);
         super(step,stepSolver,
@@ -512,7 +498,6 @@ export class EDAE_RADAUIIA5 extends EDAE_IRK{
  * Embedded gauss-legendre 4th order
  */
 export class EDAE_GAUSSLEGENDRE4 extends EDAE_IRKA{
-    //TODO: TEST
     constructor(step:number,maxStep:number,errorTolerance:number,stepSolver:NewtonSolver){
         let sqrt3 = Math.sqrt(3); 
         super(step,maxStep,4,errorTolerance,stepSolver,
@@ -531,7 +516,6 @@ export class EDAE_GAUSSLEGENDRE4 extends EDAE_IRKA{
  * Embedded gauss-legendre 6th order
  */
 export class EDAE_GAUSSLEGENDRE6 extends EDAE_IRKA{
-    //TODO: TEST
     constructor(step:number,maxStep:number,errorTolerance:number,stepSolver:NewtonSolver){
         let sqrt15 = Math.sqrt(15); 
         super(step,maxStep,6,errorTolerance,stepSolver,
@@ -548,7 +532,6 @@ export class EDAE_GAUSSLEGENDRE6 extends EDAE_IRKA{
     }
 }
 export class EDAE_LOBATTOIIIA2 extends EDAE_IRKA{
-    //TODO: TEST
     constructor(step:number,maxStep:number,errorTolerance:number,stepSolver:NewtonSolver){
         super(step,maxStep,2,errorTolerance,stepSolver,
             [
@@ -563,7 +546,6 @@ export class EDAE_LOBATTOIIIA2 extends EDAE_IRKA{
     }
 }
 export class EDAE_LOBATTOIIIA4 extends EDAE_IRKA{
-    //TODO: TEST
     constructor(step:number,maxStep:number,errorTolerance:number,stepSolver:NewtonSolver){
         super(step,maxStep,4,errorTolerance,stepSolver,
             [
@@ -579,7 +561,6 @@ export class EDAE_LOBATTOIIIA4 extends EDAE_IRKA{
     }
 }
 export class EDAE_LOBATTOIIIB2 extends EDAE_IRKA{
-    //TODO: TEST
     constructor(step:number,maxStep:number,errorTolerance:number,stepSolver:NewtonSolver){
         super(step,maxStep,2,errorTolerance,stepSolver,
             [
@@ -594,7 +575,6 @@ export class EDAE_LOBATTOIIIB2 extends EDAE_IRKA{
     }
 }
 export class EDAE_LOBATTOIIIB4 extends EDAE_IRKA{
-    //TODO: TEST
     constructor(step:number,maxStep:number,errorTolerance:number,stepSolver:NewtonSolver){
         super(step,maxStep,4,errorTolerance,stepSolver,
             [
@@ -610,7 +590,6 @@ export class EDAE_LOBATTOIIIB4 extends EDAE_IRKA{
     }
 }
 export class EDAE_LOBATTOIIIC2 extends EDAE_IRKA{
-    //TODO: TEST
     constructor(step:number,maxStep:number,errorTolerance:number,stepSolver:NewtonSolver){
         super(step,maxStep,2,errorTolerance,stepSolver,
             [
@@ -625,7 +604,6 @@ export class EDAE_LOBATTOIIIC2 extends EDAE_IRKA{
     }
 }
 export class EDAE_LOBATTOIIIC4 extends EDAE_IRKA{
-    //TODO: TEST
     constructor(step:number,maxStep:number,errorTolerance:number,stepSolver:NewtonSolver){
         super(step,maxStep,4,errorTolerance,stepSolver,
             [

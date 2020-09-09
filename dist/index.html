@@ -1,8 +1,11 @@
 <html>
 <head>
-    <title>HybridSystemsJS</title>
+    <title>Hybrid Systems JS</title>
+    <meta charset="utf-8" content="text/html" http-equiv="content-type"/>
+    <meta name="description" content="Simple tool for numerical solution of hybrid dae index 1 systems">
+    <meta name="robots" content="all">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="./main.css" />
-    <meta charset="utf-8" content=" text/html" http-equiv="content-type" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
 </head>
 <body>
@@ -27,6 +30,8 @@
         </div>
         <div class="tab-content">
             <div id="main" class="tab show" data-role="tab-item" data-parent="tab-window">
+                <div id="debug" style="display:none">
+                </div>
                 <textarea id="text-input"></textarea>
                 <div class="tab-container" id="tab-errors">
                     <div id="main-header" class="tab-header-list">
@@ -36,18 +41,19 @@
                     <div id="log-errors-tab-content" class="tab-content">
                         <div id="errors-tab" class="tab show" data-role="tab-item" data-parent="tab-errors">
                             <div id="errors">
+                            <div id="errors-table">
                                 <div id="errors-header">
                                     <div class="errors-cell">Line</div>
                                     <div class="errors-cell">Position</div>
                                     <div class="errors-cell">Error</div>
                                 </div>
                                 <div id="error-list">
-                                    <div id="errors-row">
+                                    <div class="errors-row">
                                         <div class="errors-cell">5</div>
                                         <div class="errors-cell">3</div>
                                         <div class="errors-cell">Olololaoslda o sldoal sdoal sd</div>
                                     </div>
-                                    <div id="errors-row">
+                                    <div class="errors-row">
                                         <div class="errors-cell">5</div>
                                         <div class="errors-cell">3</div>
                                         <div class="errors-cell">Ololololaoslda o sl
@@ -65,6 +71,9 @@
                                     </div>
                                 </div>
                             </div>
+                            <div id="errors-table-padding">
+                            </div>
+                            </div>
                         </div>
                         <div id="log-tab" class="tab" data-role="tab-item" data-parent="tab-errors">
                             <!--<textarea id="log" disabled></textarea>-->
@@ -76,12 +85,12 @@
                 <div id="load-area">
                     <div class="group">
                         <div class="group-name">Examples</div>
-                        <div class="group">
+                        <div class="group" style="vertical-align: top;display:inline-block">
                             <div class="group-name">DAE</div>
                             <div id="examples-dae">
                             </div>
                         </div>
-                        <div class="group">
+                        <div class="group" style="vertical-align: top;display:inline-block">
                             <div class="group-name">Hybrid</div>
                             <div id="examples-hybrid">
                             </div>
@@ -94,39 +103,28 @@
                     <div class="group-name">Solver parameters</div>
                     <div class="form">
                         <div class="form-row">
-                            <label class="form-col">Explicit/Implicit dae form</label>
+                            <label class="form-col">Equations form</label>
                             <select class="form-col" id="dae-form">
                                 <option value="explicit" selected>Explicit</option>
                                 <option value="implicit">Implicit</option>
                             </select>
                         </div>
                         <div class="form-row">
-                            <label class="form-col">Method</label>
+                            <label class="form-col">ODE Method</label>
                             <select class="form-col" id="method">
-                                <optgroup label="Implicit methods">
-                                    <option value="ieuler" selected>Euler</option>
-                                    <option value="imidpoint">Midpoint</option>
-                                    <option value="itrapezoidal">Trapezoidal</option>
+                                <optgroup id="implicitMethods" label="Implicit methods">
                                 </optgroup>
-                                <optgroup label="Explicit methods">
-                                    <option value="eeuler">Euler</option>
-                                    <option value="emidpoint">Midpoint</option>
-                                    <option value="etrapezoidal">Trapezoidal</option>
-                                    <option value="erk4">RK4</option>
-                                    <option value="erk4-2">RK4 2</option>
-                                    <option value="erk4-ralston">RK4 Ralston</option>
-                                    <option value="edopri5">DOPRI5</option>
-                                    <option value="ebs23">BS23</option>
+                                <optgroup id="explicitMethods" label="Explicit methods">
                                 </optgroup>
                             </select>
                         </div>
                         <div class="form-row">
-                            <label class="form-col">T0</label>
+                            <label class="form-col">T<sub>0</sub></label>
                             <input class="form-col" id="t0" value="0" type="number">
                         </div>
                         <div class="form-row">
-                            <label class="form-col">T1</label>
-                            <input class="form-col" id="t1" value="1" type="number">
+                            <label class="form-col">Time</label>
+                            <input class="form-col" id="time" value="1" type="number">
                         </div>
                         <div class="form-row">
                             <label class="form-col">Step, e-3</label>
@@ -223,8 +221,12 @@
                         <div class="group-name">Zero crossing detection</div>
                         <div class="form">
                             <div class="form-row">
-                                <label class="form-col">Use zero-crossing detection</label>
+                                <label class="form-col">Use detection</label>
                                 <input class="form-col" id="zero-crossing-detection" type="checkbox">
+                            </div>
+                            <div class="form-row">
+                                <label class="form-col">Border tolerance, e-3</label>
+                                <input class="form-col" id="zero-crossing-border-tol" type="number" min="0" value="1">
                             </div>
                             <div class="disableable" id="zero-crossing">
                                 <div class="form-row">
@@ -248,11 +250,11 @@
                                     <input class="form-col" id="rel-tol-zero-crossing" type="number" min="0" value="0.01">
                                 </div>
                                 <div class="form-row">
-                                    <label class="form-col">Time resolution abs. tolerance, e-3</label>
+                                    <label class="form-col">Time res. abs. tol., e-3</label>
                                     <input class="form-col" id="time-abs-tol-zero-crossing" type="number" min="0" value="1">
                                 </div>
                                 <div class="form-row">
-                                    <label class="form-col">Time resolution rel. tolerance, e-3</label>
+                                    <label class="form-col">Time res. rel. tol., e-3</label>
                                     <input class="form-col" id="time-rel-tol-zero-crossing" type="number" min="0" value="0.01">
                                 </div>
                             </div>
@@ -260,25 +262,33 @@
                     </div>
                 </div>
                 <div class="group">
-                    <div class="group-name">Points</div>
+                    <div class="group-name">Curve simplification</div>
                     <div class="form">
                         <div class="form-row">
                             <label class="form-col">Use simplification</label>
-                            <input class="form-col" id="points-reduction" type="checkbox">
+                            <input class="form-col" id="use-simplification" type="checkbox">
                         </div>
-                        <div class="disableable" id="points-simplification">
+                        <div class="disableable" id="simplification">
                             <div class="form-row">
                                 <label class="form-col">Method</label>
-                                <select id="points-reduction-method" class="form-col">
+                                <select id="simplification-method" class="form-col">
                                     <option>Douglas-Peucker</option>
                                     <option>Radial distance</option>
                                     <option>Perpendicular Distance</option>
+                                    <option>Lang</option>
+                                    <option>Opheim</option>
+                                    <option>Reumann-Witkam</option>
                                     <option>Nth point</option>
+                                    <option>Max points</option>
                                 </select>
                             </div>
                             <div class="form-row">
                                 <label class="form-col">Max number of points</label>
-                                <input class="form-col" id="points-max-number" type="number">
+                                <input class="form-col" id="simplification-limit" type="number" step="1" value="50000" min="2" max="2000000">
+                            </div>
+                            <div class="form-row">
+                                <label class="form-col">Tolerance, e-3</label>
+                                <input class="form-col" id="simplification-tolerance" type="number" value="100" min="0">
                             </div>
                         </div>
                     </div>
@@ -291,7 +301,10 @@
                 </div>
             </div>
             <div id="help" data-parent="tab-window" data-role="tab-item" class="tab">
-                HELP
+                <div class="help-header">Purpose</div>
+                <a target="_blank" rel="noopener noreferrer" href="https://musseffect.github.io/notes/hybrid-systems">Hybrid dynamical systems</a>
+                <div class="help-header">Language</div>
+                <div class="help-header">Solver parameters</div>
             </div>
         </div>
     </div> 

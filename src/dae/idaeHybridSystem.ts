@@ -1,27 +1,25 @@
 import { vector } from "../math/vector";
 import { matrix } from "../math/matrix";
 import { IDAESystem } from "./idaeSystem";
-import { HybridState, HybridStateLink } from "./solver";
+import { HybridStateLink } from "./hybridStateLink";
 
-
-export abstract class IDAEHybridSystem implements IDAESystem {
-    protected states: HybridState[];
-    protected statesMap: Record<string, number>;
-    protected currentState: number;
-    getCurrentStateIndex(): number {
-        return this.currentState;
+export abstract class IDAEHybridState implements IDAESystem{
+    protected name:string;
+    protected links:HybridStateLink[];
+    protected terminal:boolean;
+    constructor(name:string,links:HybridStateLink[],terminal:boolean){
+        this.name = name;
+        this.links = links;
+        this.terminal = terminal;
     }
-    getCurrentLinks(): HybridStateLink[] {
-        return this.states[this.currentState].links;
+    isTerminal():boolean{
+        return this.terminal;
     }
-    getCurrentState(): HybridState {
-        return this.states[this.currentState];
+    getLinks():HybridStateLink[]{
+        return this.links;
     }
-    isTerminal(): boolean {
-        return this.states[this.currentState].terminal;
-    }
-    setCurrentState(state:number){
-        this.currentState = state;
+    getName():string{
+        return this.name;
     }
     abstract f(x: vector, dx: vector, z: vector, t: number): vector;
     abstract g(x: vector, z: vector, t: number): vector;
@@ -33,4 +31,36 @@ export abstract class IDAEHybridSystem implements IDAESystem {
     abstract dgdt(x: vector, z: vector, t: number): vector;
     abstract length_z(): number;
     abstract length_x(): number;
+}
+
+export class IDAEHybridSystem{
+    protected states: IDAEHybridState[];
+    /*protected statesMap: Record<string, number>;*/
+    protected currentState: number;
+    constructor(states:IDAEHybridState[]){
+        this.states = states;
+        this.currentState = 0;
+    }
+    getCurrentStateIndex(): number {
+        return this.currentState;
+    }
+    getCurrentState(): IDAEHybridState {
+        return this.states[this.currentState];
+    }
+    isTerminal(): boolean {
+        return this.states[this.currentState].isTerminal();
+    }
+    setCurrentState(state:number){
+        this.currentState = state;
+    }
+    /*abstract f(x: vector, dx: vector, z: vector, t: number): vector;
+    abstract g(x: vector, z: vector, t: number): vector;
+    abstract dfdx(x: vector, dx: vector, z: vector, t: number): matrix;
+    abstract dfddx(x: vector, dx: vector, z: vector, t: number): matrix;
+    abstract dfdz(x: vector, dx: vector, z: vector, t: number): matrix;
+    abstract dgdx(x: vector, z: vector, t: number): matrix;
+    abstract dgdz(x: vector, z: vector, t: number): matrix;
+    abstract dgdt(x: vector, z: vector, t: number): vector;
+    abstract length_z(): number;
+    abstract length_x(): number;*/
 }

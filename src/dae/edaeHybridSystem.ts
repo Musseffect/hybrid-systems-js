@@ -1,47 +1,56 @@
 import { vector } from "../math/vector";
 import { matrix } from "../math/matrix";
 import { EDAESystem } from "./edaeSystem";
-import { HybridState, HybridStateLink } from "./solver";
+import { HybridStateLink } from "./hybridStateLink";
+import { Expression } from "../compiler/expression";
 
-export abstract class EDAEHybridState implements EDAESystem {
-    name:string;
-    links:HybridStateLink[];
-    terminal:boolean;
-    abstract f(x:vector,z:vector,t:number):vector;
-    abstract g(x:vector,z:vector,t:number):vector;
-    abstract dfdx(x:vector,z:vector,t:number):matrix;
-    abstract dfdz(x:vector,z:vector,t:number):matrix;
-    abstract dgdx(x: vector, t: number): matrix;
-    abstract dgdt(x: vector, t: number): vector;
-    abstract length_x(): number;
-    abstract length_z(): number;
-}
 
-export abstract class EDAEHybridSystem{
-    protected states: EDAEHybridState[];
-    protected statesMap: Record<string, number>;
-    protected currentState: number;
-    setCurrentState(state: number) {
-        this.currentState = state;
+export abstract class EDAEHybridState implements EDAESystem{
+    protected name:string;
+    protected links:HybridStateLink[];
+    protected terminal:boolean;
+    constructor(name:string,links:HybridStateLink[],terminal:boolean){
+        this.name = name;
+        this.links = links;
+        this.terminal = terminal;
     }
-    getCurrentStateIndex(): number {
-        return this.currentState;
+    isTerminal():boolean{
+        return this.terminal;
     }
-    getCurrentLinks(): HybridStateLink[] {
-        return this.states[this.currentState].links;
+    getLinks():HybridStateLink[]{
+        return this.links;
     }
-    getCurrentState(): EDAEHybridState {
-        return this.states[this.currentState];
+    getName():string{
+        return this.name;
     }
-    isTerminal(): boolean {
-        return this.states[this.currentState].terminal;
-    }
-    /*abstract f(x: vector, z: vector, t: number): vector;
+    abstract f(x: vector, z: vector, t: number): vector;
     abstract g(x: vector, t: number): vector;
     abstract dfdx(x: vector, z: vector, t: number): matrix;
     abstract dfdz(x: vector, z: vector, t: number): matrix;
     abstract dgdx(x: vector, t: number): matrix;
     abstract dgdt(x: vector, t: number): vector;
     abstract length_x(): number;
-    abstract length_z(): number;*/
+    abstract length_z(): number;
+}
+
+export class EDAEHybridSystem{
+    protected states: EDAEHybridState[];
+    /*protected statesMap: Record<string, number>;*/
+    protected currentState: number;
+    constructor(states:EDAEHybridState[]){
+        this.states = states;
+        this.currentState = 0;
+    }
+    setCurrentState(state: number) {
+        this.currentState = state;
+    }
+    getCurrentStateIndex(): number {
+        return this.currentState;
+    }
+    getCurrentState(): EDAEHybridState {
+        return this.states[this.currentState];
+    }
+    isTerminal(): boolean {
+        return this.states[this.currentState].isTerminal();
+    }
 }

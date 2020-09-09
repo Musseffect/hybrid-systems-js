@@ -1,12 +1,12 @@
 import {
     DAEVector
-} from "../../solver";
+} from "../../daeVector";
 import { EDAESolver } from "../../edaeSolver";
 import { EDAESystem } from "../../edaeSystem";
 import { vector } from "../../../math/vector";
 import { matrix } from "../../../math/matrix";
 import { gauss } from "../../../math/gauss";
-import { NewtonSolver } from "../../../nonlinear/newton";
+import { NewtonSolver } from "../../../math/newton";
 
 /*
 explicit
@@ -40,7 +40,6 @@ export class EDAE_ETrapezoidal extends EDAESolver{
     constructor(step:number){
         super(step);
     }
-    //TODO: TEST
     public makeStep(x: vector, z: vector, t: number, system: EDAESystem): DAEVector {
         let tNew = t+this.step;
         let k_1 = system.f(x,z,t).scaleSelf(this.step);
@@ -64,7 +63,6 @@ export class EDAE_ITrapezoidal extends EDAESolver{
         x_{n+1} - x_n - 0.5* h * (k_1+f(x_{n+1},g(x_{n+1},t_{n+1}),t_{n+1})) = 0
         dF_i/dx_{n+1}_j = \delta_ij - 0.5*h * df/dx - 0.5*h*df/dz * dg/dx(x_{n+1],t_{n+1})
      */
-    //TODO: TEST
     public makeStep(x: vector, z: vector, t: number, system: EDAESystem): DAEVector {
         let k_1 = system.f(x,z,t);
         let xNew = x.clone().addSelf(vector.scale(k_1,this.step));//better approximation for xNew

@@ -1,20 +1,29 @@
-import {ExpressionNode, FunctionNode, NegationNode, ConstantNode, DivisionNode, MultiplicationNode, SubtractionNode, AdditionNode} from "./expressionNodes";
+import {
+    Expression,
+    Function,
+    Negation,
+    Constant,
+    Division,
+    Multiplication, 
+    Subtraction,
+    Addition
+} from "./expression";
 export interface FunctionDerivative{
-    (args:ExpressionNode[]):ExpressionNode;
+    (args:Expression[]):Expression;
 }
 
 
 export abstract class FunctionDef{
     name:string;
     argCount:number;
-    derivatives:Array<(args: ExpressionNode[])=>ExpressionNode>;
+    derivatives:Array<(args: Expression[])=>Expression>;
     constructor(name:string,argCount:number,derivatives:FunctionDerivative[]){
         this.name = name;
         this.argCount = argCount;
         this.derivatives = derivatives;
     }
     abstract exec(args:number[]):number;
-    getDerivative(index:number, args:ExpressionNode[]):ExpressionNode{
+    getDerivative(index:number, args:Expression[]):Expression{
         return this.derivatives[index](args);
     }
 }
@@ -25,8 +34,8 @@ class sin extends FunctionDef{
     exec(args:number[]){
         return Math.sin(args[0]);
     }
-    static der(args:ExpressionNode[]){
-        return new FunctionNode("cos",args);
+    static der(args:Expression[]){
+        return new Function("cos",args);
     }
 }
 class cos extends FunctionDef{
@@ -34,10 +43,10 @@ class cos extends FunctionDef{
         super("cos",1, [cos.der]);
     }
     exec(args:number[]){
-        return Math.sin(args[0]);
+        return Math.cos(args[0]);
     }
-    static der(args:ExpressionNode[]){
-        return new NegationNode(new FunctionNode("cos",args));
+    static der(args:Expression[]){
+        return new Negation(new Function("cos",args));
     }
 }
 class sinc extends FunctionDef{
@@ -49,9 +58,9 @@ class sinc extends FunctionDef{
             return 1.0-args[0]*args[0]/6.0*(1.-args[0]*args[0]/20);//truncated maclaurin series 
         return Math.sin(args[0])/args[0];
     }
-    static der(args:ExpressionNode[]){
-        return new DivisionNode(
-            new SubtractionNode(new FunctionNode("cos",args),new FunctionNode("sinc",args)),
+    static der(args:Expression[]){
+        return new Division(
+            new Subtraction(new Function("cos",args),new Function("sinc",args)),
             args[0]
             );
     }
@@ -63,10 +72,10 @@ class tan extends FunctionDef{
     exec(args:number[]){
         return Math.tan(args[0]);
     }
-    static der(args:ExpressionNode[]){
-        return new FunctionNode("pow",[
-            new FunctionNode("cos", args),
-            new ConstantNode(2)]);
+    static der(args:Expression[]){
+        return new Function("pow",[
+            new Function("cos", args),
+            new Constant(2)]);
     }
 };
 class cot extends FunctionDef{
@@ -76,11 +85,11 @@ class cot extends FunctionDef{
     exec(args:number[]){
         return Math.cos(args[0])/Math.sin(args[0]);
     }
-    static der(args:ExpressionNode[]){
-        return new NegationNode(
-            new FunctionNode("pow",[
-                new FunctionNode("sin",args),
-                new ConstantNode(2)])
+    static der(args:Expression[]){
+        return new Negation(
+            new Function("pow",[
+                new Function("sin",args),
+                new Constant(2)])
         );
     }
 };
@@ -91,13 +100,13 @@ class asin extends FunctionDef{
     exec(args:number[]){
         return Math.asin(args[0]);
     }
-    static der(args:ExpressionNode[]){
-        return new DivisionNode(new ConstantNode(1.0),
-        new FunctionNode("sqrt",
+    static der(args:Expression[]){
+        return new Division(new Constant(1.0),
+        new Function("sqrt",
         [
-            new SubtractionNode(
-                new ConstantNode(1),
-                new MultiplicationNode(args[0],args[0]))
+            new Subtraction(
+                new Constant(1),
+                new Multiplication(args[0],args[0]))
         ])) 
     }
 };
@@ -108,14 +117,14 @@ class acos extends FunctionDef{
     exec(args:number[]){
         return Math.acos(args[0]);
     }
-    static der(args:ExpressionNode[]){
-        return new NegationNode(
-            new DivisionNode(new ConstantNode(1.0),
-        new FunctionNode("sqrt",
+    static der(args:Expression[]){
+        return new Negation(
+            new Division(new Constant(1.0),
+        new Function("sqrt",
         [
-            new SubtractionNode(
-                new ConstantNode(1),
-                new MultiplicationNode(args[0],args[0]))
+            new Subtraction(
+                new Constant(1),
+                new Multiplication(args[0],args[0]))
         ])));
     }};
 class atan extends FunctionDef{
@@ -125,11 +134,11 @@ class atan extends FunctionDef{
     exec(args:number[]){
         return Math.atan(args[0]);
     }
-    static der(args:ExpressionNode[]){
-        return new DivisionNode(new ConstantNode(1.0),
-            new AdditionNode(
-                new ConstantNode(1),
-                new MultiplicationNode(args[0],args[0])
+    static der(args:Expression[]){
+        return new Division(new Constant(1.0),
+            new Addition(
+                new Constant(1),
+                new Multiplication(args[0],args[0])
                 )
         );
     }};
@@ -140,11 +149,11 @@ class acot extends FunctionDef{
     exec(args:number[]){
         return Math.PI/2-Math.atan(args[0]);
     }
-    static der(args:ExpressionNode[]){
-        return new NegationNode(new DivisionNode(new ConstantNode(1.0),
-            new AdditionNode(
-                new ConstantNode(1),
-                new MultiplicationNode(args[0],args[0])
+    static der(args:Expression[]){
+        return new Negation(new Division(new Constant(1.0),
+            new Addition(
+                new Constant(1),
+                new Multiplication(args[0],args[0])
                 )
         ));
     }};
@@ -155,8 +164,8 @@ class sinh extends FunctionDef{
     exec(args:number[]){
         return Math.sinh(args[0]);
     }
-    static der(args:ExpressionNode[]){
-        return new FunctionNode("cosh",args);
+    static der(args:Expression[]){
+        return new Function("cosh",args);
     }};
 class cosh extends FunctionDef{
     constructor(){
@@ -165,8 +174,8 @@ class cosh extends FunctionDef{
     exec(args:number[]){
         return Math.cosh(args[0]);
     }
-    static der(args:ExpressionNode[]){
-        return new FunctionNode("sinh",args);
+    static der(args:Expression[]){
+        return new Function("sinh",args);
     }};
 class tanh extends FunctionDef{
     constructor(){
@@ -175,10 +184,10 @@ class tanh extends FunctionDef{
     exec(args:number[]){
         return Math.tanh(args[0]);
     }
-    static der(args:ExpressionNode[]){
-        return new FunctionNode("pow",[
-            new FunctionNode("cosh",args)
-            ,new ConstantNode(-2)
+    static der(args:Expression[]){
+        return new Function("pow",[
+            new Function("cosh",args)
+            ,new Constant(-2)
         ]);
     }};
 class coth extends FunctionDef{
@@ -188,10 +197,10 @@ class coth extends FunctionDef{
     exec(args:number[]){
         return 1.0/Math.tanh(args[0]);
     }
-    static der(args:ExpressionNode[]){
-        return new NegationNode(new FunctionNode("pow",[
-            new FunctionNode("sinh",args)
-            ,new ConstantNode(-2)
+    static der(args:Expression[]){
+        return new Negation(new Function("pow",[
+            new Function("sinh",args)
+            ,new Constant(-2)
         ]));
     }};
 class asinh extends FunctionDef{
@@ -201,11 +210,11 @@ class asinh extends FunctionDef{
     exec(args:number[]){
         return Math.asinh(args[0]);
     }
-    static der(args:ExpressionNode[]){
-        return new DivisionNode(new ConstantNode(1),
-            new FunctionNode("sqrt",[new AdditionNode(
-                new MultiplicationNode(args[0],args[0]),
-                new ConstantNode(1)
+    static der(args:Expression[]){
+        return new Division(new Constant(1),
+            new Function("sqrt",[new Addition(
+                new Multiplication(args[0],args[0]),
+                new Constant(1)
             )])
         ); 
     }};
@@ -216,11 +225,11 @@ class acosh extends FunctionDef{
     exec(args:number[]){
         return Math.acosh(args[0]);
     }
-    static der(args:ExpressionNode[]){
-        return new DivisionNode(new ConstantNode(1),
-            new FunctionNode("sqrt",[new SubtractionNode(
-                new MultiplicationNode(args[0],args[0]),
-                new ConstantNode(1)
+    static der(args:Expression[]){
+        return new Division(new Constant(1),
+            new Function("sqrt",[new Subtraction(
+                new Multiplication(args[0],args[0]),
+                new Constant(1)
             )])
         );
     }};
@@ -231,12 +240,12 @@ class atanh extends FunctionDef{
     exec(args:number[]){
         return Math.atanh(args[0]);
     }
-    static der(args:ExpressionNode[]){
-        return new DivisionNode(
-            new ConstantNode(1),
-            new SubtractionNode(
-                new ConstantNode(1),
-                new MultiplicationNode(args[0],args[0])
+    static der(args:Expression[]){
+        return new Division(
+            new Constant(1),
+            new Subtraction(
+                new Constant(1),
+                new Multiplication(args[0],args[0])
             ),
         )
     }};
@@ -247,12 +256,12 @@ class acoth extends FunctionDef{
     exec(args:number[]){
         return 0.5*Math.log((1+args[0])/(args[0]-1));
     }
-    static der(args:ExpressionNode[]){
-        return new DivisionNode(
-            new ConstantNode(1),
-            new SubtractionNode(
-                new ConstantNode(1),
-                new MultiplicationNode(args[0],args[0])
+    static der(args:Expression[]){
+        return new Division(
+            new Constant(1),
+            new Subtraction(
+                new Constant(1),
+                new Multiplication(args[0],args[0])
             ),
         )
     }};
@@ -276,8 +285,8 @@ class erf extends FunctionDef{
     exec(args:number[]){
         return erf.call(args[0]);
     }
-    static der(args:ExpressionNode[]){
-        return new MultiplicationNode(new ConstantNode(2.0 / Math.sqrt(Math.PI)), new FunctionNode("exp", [new NegationNode(new MultiplicationNode(args[0], args[0]))]));
+    static der(args:Expression[]){
+        return new Multiplication(new Constant(2.0 / Math.sqrt(Math.PI)), new Function("exp", [new Negation(new Multiplication(args[0], args[0]))]));
     }
 };
 class exp extends FunctionDef{
@@ -287,8 +296,8 @@ class exp extends FunctionDef{
     exec(args:number[]){
         return Math.exp(args[0]);
     }
-    static der(args:ExpressionNode[]){
-        return new FunctionNode("exp", args);
+    static der(args:Expression[]){
+        return new Function("exp", args);
     }
 };
 class pow extends FunctionDef{
@@ -298,13 +307,13 @@ class pow extends FunctionDef{
     exec(args:number[]){
         return Math.pow(args[0], args[1]);
     }
-    static derX(args:ExpressionNode[]){
-        return new MultiplicationNode(args[1], new FunctionNode("pow", [
-            args[0],new SubtractionNode(args[1], new ConstantNode(1))
+    static derX(args:Expression[]){
+        return new Multiplication(args[1], new Function("pow", [
+            args[0],new Subtraction(args[1], new Constant(1))
         ]));
     }
-    static derY(args:ExpressionNode[]){
-        return new MultiplicationNode(new FunctionNode("ln", [args[0]]), new FunctionNode("pow", args));
+    static derY(args:Expression[]){
+        return new Multiplication(new Function("ln", [args[0]]), new Function("pow", args));
     }
 };
 class ln extends FunctionDef{
@@ -314,7 +323,7 @@ class ln extends FunctionDef{
     exec(args:number[]){
         return Math.log(args[0]);
     }
-    static der(args:ExpressionNode[]){return new DivisionNode(new ConstantNode(1.0), args[0]); 
+    static der(args:Expression[]){return new Division(new Constant(1.0), args[0]); 
     }
 };
 class log extends FunctionDef{
@@ -324,20 +333,20 @@ class log extends FunctionDef{
     exec(args:number[]){
         return Math.log(args[1])/Math.log(args[0]);
     }
-    static derX(args:ExpressionNode[]){
-        return new DivisionNode(
-            new FunctionNode("ln",[args[1]]),
-            new MultiplicationNode(
-                new FunctionNode("pow",[
-                    new FunctionNode("ln",[args[0]]),
-                    new ConstantNode(2)]),
+    static derX(args:Expression[]){
+        return new Division(
+            new Function("ln",[args[1]]),
+            new Multiplication(
+                new Function("pow",[
+                    new Function("ln",[args[0]]),
+                    new Constant(2)]),
                     args[0])
         );
     }
-    static derY(args:ExpressionNode[]){
-        return new DivisionNode(
-            new ConstantNode(1),
-            new MultiplicationNode(args[1],new FunctionNode("ln",[args[0]]))
+    static derY(args:Expression[]){
+        return new Division(
+            new Constant(1),
+            new Multiplication(args[1],new Function("ln",[args[0]]))
         );
     }
 };
@@ -348,9 +357,9 @@ class lg extends FunctionDef{
     exec(args:number[]){
         return Math.log10(args[0]);
     }
-    static der(args:ExpressionNode[]){
-        return new DivisionNode(
-            new ConstantNode(1.0/Math.log(10)),
+    static der(args:Expression[]){
+        return new Division(
+            new Constant(1.0/Math.log(10)),
             args[0]);
     }
 };
@@ -361,7 +370,8 @@ class sqrt extends FunctionDef{
     exec(args:number[]){
         return Math.sqrt(args[0]);
     }
-    static der(args:ExpressionNode[]){return new DivisionNode(new ConstantNode(0.5),new FunctionNode("sqrt",args));
+    static der(args:Expression[]){
+        return new Division(new Constant(0.5),new Function("sqrt",args));
     }
 };
 class abs extends FunctionDef{
@@ -371,8 +381,8 @@ class abs extends FunctionDef{
     exec(args:number[]){
         return Math.abs(args[0]);
     }
-    static der(args:ExpressionNode[]){
-        return new FunctionNode("step",args);
+    static der(args:Expression[]){
+        return new Function("step",args);
     }
 };
 class min extends FunctionDef{
@@ -432,11 +442,11 @@ class smoothstep extends FunctionDef{
     exec(args:number[]){
         return smoothstep.call(args[0]);
     }
-    /*static der(args:ExpressionNode[]){
+    /*static der(args:Expression[]){
         let x = args[0];
         return new 
         x = Math.max(Math.min(1,x),0);
-        return new ConstantNode(6*x*(1-x));
+        return new Constant(6*x*(1-x));
     }*/
 };
 class e extends FunctionDef{
@@ -488,5 +498,6 @@ export var functionDictionary:Record<string,FunctionDef> = {
     frac:new frac(),
     smoothstep:new smoothstep(),
     e:new e(),
-    pi:new pi()
+    pi:new pi(),
+    sinc:new sinc()
 };
