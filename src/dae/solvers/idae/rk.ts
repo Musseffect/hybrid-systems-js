@@ -92,12 +92,12 @@ abstract class IDAE_ERKA extends IDAE_ERK{
                 this.step=stepOpt;
                 continue;
             }
-            this.step = stepOpt;
-            let xNew = x.clone();
             let tNew = t + this.step;
+            let xNew = x.clone();
             for(let i=0;i<this.b.length;i++){
                 xNew.add(vector.scale(k[i],this.step*this.b[i]));
             }
+            this.step = stepOpt;
             let zNew = this.solve_z(xNew,_z,tNew,system);
             return new DAEVector(xNew,zNew,tNew);
         }
@@ -273,12 +273,12 @@ abstract class IDAE_IRKA extends IDAE_IRK{
                         shouldThrow = false;
                         break;
                     }
-                    this.step = stepOpt;
-                    let xNew = x.clone();
                     let tNew = t + this.step;
+                    let xNew = x.clone();
                     for(let j=0;j<this.stages;j++){
                         xNew.addSelf(kx[j].scaleSelf(this.step * this.b[j]));
                     }
+                    this.step = stepOpt;
                     return new DAEVector(xNew,this.solve_z(xNew,kz[this.stages-1],tNew,system),tNew);
                 }
             }

@@ -342,14 +342,14 @@ export class Function extends Expression{
 	}
 	getDerivative(index:number, epsilon:number):Expression{
 		if(this.function.derivatives===null){//use backward difference{
-			let argumentsBackward = this.args.slice();
+			let argumentsBackward = this.args.map((item)=>item.clone());
 			argumentsBackward[index] = new Subtraction(argumentsBackward[index],new Constant(epsilon));
 			return new Division(new Subtraction(
-				new Function(this.functionName, this.args),
-				new Function(this.functionName, argumentsBackward),
+				new Function(this.functionName, this.args).clone(),
+				new Function(this.functionName, argumentsBackward).clone(),
 				),new Constant(epsilon));
 		}
-		return this.function.derivatives[index](this.args);
+		return this.function.derivatives[index](this.args.map((item)=>item.clone()));
 	}
 	simplify():Expression{
 		let constantArgs = true;

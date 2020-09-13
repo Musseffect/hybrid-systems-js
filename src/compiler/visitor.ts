@@ -209,7 +209,7 @@ class Visitor extends odeGrammarVisitor.odeGrammarVisitor{
         ctx.stateTransition().forEach(function(item:any){
             transitions.push(self.visitStateTransition(item));
         })
-        return new StateNode(ctx.name.text,ctx.TERMINAL!=undefined,transitions,statements)
+        return new StateNode(ctx.name.text,ctx.TERMINAL()!=null,transitions,statements)
         .setTextPos(new TextPosition(ctx.start.line,ctx.start.column,ctx.start.start,ctx.stop.stop));
     }
     visitSetter(ctx:any):SetterNode{

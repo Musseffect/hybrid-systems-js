@@ -235,10 +235,10 @@ var sharedContextCache = new antlr4.PredictionContextCache();
 var literalNames = [ null, "'#'", "'(t0)'", "'set'", "'on'", "'from'", "'der'", 
                      "'terminal'", "'true'", "'false'", "'sum'", "'macro'", 
                      "'state'", "'for'", "'in'", "'if'", "'else'", "'local'", 
-                     "'constant'", null, null, null, "'['", "']'", null, 
-                     null, null, "'+'", "'-'", "'*'", "'/'", "'('", "')'", 
-                     "'.'", "','", "'^'", "'<'", "'>'", "'<='", "'>='", 
-                     "'!='", "'='", "';'", "':'", "'{'", "'}'", "'''", "'?'" ];
+                     "'const'", null, null, null, "'['", "']'", null, null, 
+                     null, "'+'", "'-'", "'*'", "'/'", "'('", "')'", "'.'", 
+                     "','", "'^'", "'<'", "'>'", "'<='", "'>='", "'!='", 
+                     "'='", "';'", "':'", "'{'", "'}'", "'''", "'?'" ];
 
 var symbolicNames = [ null, null, "T0", "SET", "ON", "FROM", "DER", "TERMINAL", 
                       "TRUE", "FALSE", "SUM", "MACRO", "STATE", "FOR", "IN", 

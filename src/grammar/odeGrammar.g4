@@ -77,7 +77,7 @@ IN: 'in';
 IF: 'if';
 ELSE: 'else';
 LOCAL: 'local';
-CONSTANT: 'constant';
+CONSTANT: 'const';
 OR                  : '||'| 'or' ;
 AND                 : '&&'| 'and' ;
 NOT                 : '!'| 'not' ;
@@ -89,7 +89,7 @@ FLOAT: (DIGIT+ DOT DIGIT*) ([Ee][+-]? DIGIT+)?
 		|DIGIT+ ([Ee] [+-]? DIGIT+)
 		;
 INT: DIGIT+ ; 
-ID: [_]*(LOWERCASE|UPPERCASE)[A-Za-z0-9_]*;
+ID: [_A-Za-z][A-Za-z0-9_]*;
 
 PLUS               : '+' ;
 MINUS              : '-' ;

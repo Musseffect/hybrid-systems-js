@@ -67,16 +67,17 @@ export class HybridSystemCompiler{
     protected currentState:string;
     protected isExplicit:boolean;
     protected epsilon:number;
-    protected boolExpEpsilon:number;
-    constructor(){
+    protected boolExpEpsilon:number = 1e-8;
+    constructor(boolExpEpsilon:number){
         this.constants = {};
         this.states = {initial:new State()};
         this.variables = {};
         this.context = null;
         this.errors = [];
         this.currentState = "initial";
+        this.macros = {};
         this.epsilon = 1e-3;
-        this.boolExpEpsilon = 1e-8;
+        this.boolExpEpsilon = boolExpEpsilon;
     }
     public compileExplicit(text:string):{system:EDAEHybridSystem,x0:vector,x:string[],z:string[]}{
         this.isExplicit = true;
@@ -457,7 +458,7 @@ export class HybridSystemCompiler{
                     self.errors.push(new ErrorMessage(TextPosition.invalid(),`State "${key}" contains excess equation "${equationKey}"`));
                 }
             })
-            if(Object.keys(state.equations).length!=states[0]._f.length+states[0]._g.length)
+            if(Object.keys(initialState.equations).length!=states[0]._f.length+states[0]._g.length)
                 this.errors.push(new ErrorMessage(TextPosition.invalid(),`State ${f.length}, dif. variables: ${x.length}`));
             if(f.length!=x.length){
                 this.errors.push(new ErrorMessage(TextPosition.invalid(),`Number of dif. equations: ${f.length}, dif. variables: ${x.length} in state "${key}"`));
@@ -756,7 +757,7 @@ export class HybridSystemCompiler{
         symbol.indicies.forEach(function(item,index){
            let indexValue = (compileExpression(self.expandExpression(item.clone()),{indicies:{},errors:self.errors})).eval({});
             if(Number.isInteger(indexValue)){
-                result+=`[${self.context.index}]`;
+                result+=`[${indexValue}]`;
                 return;
             }else{
                 self.errors.push(new ErrorMessage(symbol.textPos,`Expression for ${index} index value of symbol "${symbol.id}" is not constant`));

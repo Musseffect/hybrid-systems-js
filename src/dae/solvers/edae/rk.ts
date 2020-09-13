@@ -85,12 +85,12 @@ abstract class EDAE_ERKA extends EDAE_ERK{
                 this.step=stepOpt;
                 continue;
             }
-            this.step = stepOpt;
-            let xNew = x.clone();
             let tNew = t + this.step;
+            let xNew = x.clone();
             for(let i=0;i<this.b.length;i++){
                 xNew.add(vector.scale(k[i],this.step*this.b[i]));
             }
+            this.step = stepOpt;
             return new DAEVector(xNew,system.g(xNew,tNew),tNew);
         }
     }
@@ -272,12 +272,12 @@ abstract class EDAE_IRKA extends EDAE_IRK{
                         shouldThrow = false;
                         break;
                     }
-                    this.step = stepOpt;
-                    let xNew = x.clone();
                     let tNew = t + this.step;
+                    let xNew = x.clone();
                     for(let j=0;j<this.stages;j++){
                         xNew.addSelf(k[j].scaleSelf(this.step * this.b[j]));
                     }
+                    this.step = stepOpt;
                     return new DAEVector(xNew,system.g(xNew,tNew),tNew);
                 }
             }

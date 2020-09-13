@@ -16,10 +16,13 @@ export class EDAEHybridSolver {
         this.eventDetector = eventDetector;
         this.adaptiveStepStrategy = adaptiveStepStrategy;
     }
-    solve(x0: vector, t0: number, t1: number, solver: EDAESolver, system: EDAEHybridSystem): HybridSolution {
+    solve(x0: vector, t0: number, t1: number, solver: EDAESolver, system: EDAEHybridSystem):HybridSolution {
         let solutionValues: DAEVector[] = [];
         let states: number[] = [];
         let stateSwitches: number[] = [];
+
+        let stats = {statesSwitched:0,steps:0,minStep:10e8,maxStep:0};
+
         let t = t0;
         let x = x0;
         let z = system.getCurrentState().g(x, t);
@@ -40,12 +43,16 @@ export class EDAEHybridSolver {
                     isStepChanged = true;
                 }
             }
+            stats.minStep = Math.min(stats.minStep,currentStep);
+            stats.maxStep = Math.max(stats.maxStep,currentStep);
+            stats.steps++;
             //calculate variable values at t_{n+1}, t_{n+1} = t_n + h
             let curValues = solver.makeStep(oldValues.x, oldValues.z, oldValues.t, system.getCurrentState());
             //check for state change in the interval [t_n,t_n+h]
             if (this.eventDetector.checkEventEDAE(oldValues, curValues, solver, system)) {
                 states.push(system.getCurrentStateIndex());
                 stateSwitches.push(curValues.t);
+                stats.statesSwitched++;
                 //check for terminal state
                 if (system.isTerminal()) {
                     break;
@@ -62,6 +69,6 @@ export class EDAEHybridSolver {
                 break;
             }
         }
-        return new HybridSolution(solutionValues, states,stateSwitches);
+        return new HybridSolution(solutionValues, states, stateSwitches, stats);
     }
 }

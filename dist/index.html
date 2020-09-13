@@ -30,9 +30,11 @@
         </div>
         <div class="tab-content">
             <div id="main" class="tab show" data-role="tab-item" data-parent="tab-window">
-                <div id="debug" style="display:none">
+                <div id="debug">
                 </div>
-                <textarea id="text-input"></textarea>
+                <div id="editor">
+                </div>
+                <textarea id="text-input" style="display:none"></textarea>
                 <div class="tab-container" id="tab-errors">
                     <div id="main-header" class="tab-header-list">
                         <div class="tab-header active" data-role="tab" data-tab="errors-tab" data-parent="tab-errors">Errors</div>
@@ -48,10 +50,10 @@
                                     <div class="errors-cell">Error</div>
                                 </div>
                                 <div id="error-list">
-                                    <div class="errors-row">
+                                    <!--<div class="errors-row">
                                         <div class="errors-cell">5</div>
                                         <div class="errors-cell">3</div>
-                                        <div class="errors-cell">Olololaoslda o sldoal sdoal sd</div>
+                                        <div class="errors-cell">Lorem ipsum something something</div>
                                     </div>
                                     <div class="errors-row">
                                         <div class="errors-cell">5</div>
@@ -68,7 +70,7 @@
                                             o sldoaololaoslda o sldoaol
                                             olaoslda o sldoaololaoslda 
                                             o sldoaolaoslda o sldoal sdoal sd</div>
-                                    </div>
+                                    </div>-->
                                 </div>
                             </div>
                             <div id="errors-table-padding">
@@ -111,7 +113,7 @@
                         </div>
                         <div class="form-row">
                             <label class="form-col">ODE Method</label>
-                            <select class="form-col" id="method">
+                            <select class="form-col" id="dae-method">
                                 <optgroup id="implicitMethods" label="Implicit methods">
                                 </optgroup>
                                 <optgroup id="explicitMethods" label="Explicit methods">
@@ -139,7 +141,7 @@
                                 </div>
                                 <div class="form-row">
                                     <label class="form-col">Error tolerance. e-3</label>
-                                    <input class="form-col" id="error-tolerance" min="0" value="10" type="number">
+                                    <input class="form-col" id="step-err-tol" min="0" value="10" type="number">
                                 </div>
                             </div>
                         </div>
@@ -148,23 +150,23 @@
                             <div id="implicit">
                                 <div class="form-row">
                                     <label class="form-col">Iterations</label>
-                                    <input class="form-col" id="implicit-iterations" min="1" value="20" type="number">
+                                    <input class="form-col" id="step-solver-iters" min="1" value="20" type="number">
                                 </div>
                                 <div class="form-row">
                                     <label class="form-col">Min. iterations</label>
-                                    <input class="form-col" id="implicit-min-iterations" min="0" value="0" type="number">
+                                    <input class="form-col" id="step-solver-min-iters" min="0" value="0" type="number">
                                 </div>
                                 <div class="form-row">
                                     <label class="form-col">Abs. tolerance, e-3</label>
-                                    <input class="form-col" id="implicit-f-abs-tol" min="0" value="1" type="number">
+                                    <input class="form-col" id="step-solver-abs-tol" min="0" value="1" type="number">
                                 </div>
                                 <div class="form-row">
                                     <label class="form-col">Rel. tolerance, e-3</label>
-                                    <input class="form-col" id="implicit-f-rel-tol" min="0" value="1" type="number">
+                                    <input class="form-col" id="step-solver-rel-tol" min="0" value="1" type="number">
                                 </div>
                                 <div class="form-row">
                                     <label class="form-col">Alpha</label>
-                                    <input class="form-col" id="implicit-alpha" min="0" value="0.95" max="1" type="number">
+                                    <input class="form-col" id="step-solver-alpha" min="0" value="0.95" max="1" type="number">
                                 </div>
                                 <!--Well, Newton WAS an alpha, what a beast-->
                             </div>
@@ -174,23 +176,23 @@
                             <div id="implicit-dae">
                                 <div class="form-row">
                                     <label class="form-col">Iterations</label>
-                                    <input class="form-col" id="idae-iterations" min="1" value="20" type="number">
+                                    <input class="form-col" id="sys-solver-iters" min="1" value="20" type="number">
                                 </div>
                                 <div class="form-row">
                                     <label class="form-col">Min. iterations</label>
-                                    <input class="form-col" id="idae-min-iterations" min="0" value="0" type="number">
+                                    <input class="form-col" id="sys-solver-min-iters" min="0" value="0" type="number">
                                 </div>
                                 <div class="form-row">
                                     <label class="form-col">Abs. tolerance, e-3</label>
-                                    <input class="form-col" id="idae-f-abs-tol" min="0" value="1" type="number">
+                                    <input class="form-col" id="sys-solver-abs-tol" min="0" value="1" type="number">
                                 </div>
                                 <div class="form-row">
                                     <label class="form-col">Rel. tolerance, e-3</label>
-                                    <input class="form-col" id="idae-f-rel-tol" min="0" value="1" type="number">
+                                    <input class="form-col" id="sys-solver-rel-tol" min="0" value="1" type="number">
                                 </div>
                                 <div class="form-row">
                                     <label class="form-col">Alpha</label>
-                                    <input class="form-col" id="idae-alpha" min="0" value="0.95" max="1" type="number">
+                                    <input class="form-col" id="sys-solver-alpha" min="0" value="0.95" max="1" type="number">
                                 </div>
                             </div>
                         </div>
@@ -205,13 +207,13 @@
                                 <label class="form-col">Use adaptive step</label>
                                 <input class="form-col" id="adaptive-step" type="checkbox">
                             </div>
-                            <div class="disableable" id="adaptive">
+                            <div class="disableable" id="adaptive-step-params">
                                 <div class="form-row">
                                     <label class="form-col">Gamma</label>
-                                    <input class="form-col" id="adaptive-gamma" type="number" min="0" max="1" value="0.95">
+                                    <input class="form-col" id="adaptive-step-gamma" type="number" min="0" max="1" value="0.95">
                                 </div>
                                 <div class="form-row">
-                                    <label class="form-col">Min step, ms</label>
+                                    <label class="form-col">Min step, e-3</label>
                                     <input class="form-col" id="adaptive-min-step" type="number" min="0" value="10">
                                 </div>
                             </div>
@@ -222,40 +224,40 @@
                         <div class="form">
                             <div class="form-row">
                                 <label class="form-col">Use detection</label>
-                                <input class="form-col" id="zero-crossing-detection" type="checkbox">
+                                <input class="form-col" id="zero-crossing" type="checkbox">
                             </div>
                             <div class="form-row">
                                 <label class="form-col">Border tolerance, e-3</label>
-                                <input class="form-col" id="zero-crossing-border-tol" type="number" min="0" value="1">
+                                <input class="form-col" id="zc-border-tol" type="number" min="0" value="1">
                             </div>
-                            <div class="disableable" id="zero-crossing">
+                            <div class="disableable" id="zero-crossing-params">
                                 <div class="form-row">
                                     <label class="form-col">Newton method iterations</label>
-                                    <input class="form-col" id="newton-iterations-zero-crossing" type="number" min="0" value="20">
+                                    <input class="form-col" id="zc-newton-iters" type="number" min="0" value="20">
                                 </div>
                                 <div class="form-row">
                                     <label class="form-col">Bisection iterations</label>
-                                    <input class="form-col" id="bisection-iterations-zero-crossing" type="number" min="0" value="20">
+                                    <input class="form-col" id="zc-bisect-iters" type="number" min="0" value="20">
                                 </div>
                                 <div class="form-row">
                                     <label class="form-col">Newton method alpha</label>
-                                    <input class="form-col" id="alpha-zero-crossing" type="number" min="0" max="1" value="0.95">
+                                    <input class="form-col" id="zc-newton-alpha" type="number" min="0" max="1" value="0.95">
                                 </div>
                                 <div class="form-row">
                                     <label class="form-col">Abs. tolerance, e-3</label>
-                                    <input class="form-col" id="abs-tol-zero-crossing" type="number" min="0" value="1">
+                                    <input class="form-col" id="zc-abs-tol" type="number" min="0" value="1">
                                 </div>
                                 <div class="form-row">
                                     <label class="form-col">Rel. tolerance, e-3</label>
-                                    <input class="form-col" id="rel-tol-zero-crossing" type="number" min="0" value="0.01">
+                                    <input class="form-col" id="zc-rel-tol" type="number" min="0" value="0.01">
                                 </div>
                                 <div class="form-row">
                                     <label class="form-col">Time res. abs. tol., e-3</label>
-                                    <input class="form-col" id="time-abs-tol-zero-crossing" type="number" min="0" value="1">
+                                    <input class="form-col" id="zc-time-abs-tol" type="number" min="0" value="1">
                                 </div>
                                 <div class="form-row">
                                     <label class="form-col">Time res. rel. tol., e-3</label>
-                                    <input class="form-col" id="time-rel-tol-zero-crossing" type="number" min="0" value="0.01">
+                                    <input class="form-col" id="zc-time-rel-tol" type="number" min="0" value="0.01">
                                 </div>
                             </div>
                         </div>
@@ -266,29 +268,42 @@
                     <div class="form">
                         <div class="form-row">
                             <label class="form-col">Use simplification</label>
-                            <input class="form-col" id="use-simplification" type="checkbox">
+                            <input class="form-col" id="simplification" type="checkbox">
                         </div>
-                        <div class="disableable" id="simplification">
+                        <div class="disableable" id="simplification-params">
                             <div class="form-row">
                                 <label class="form-col">Method</label>
-                                <select id="simplification-method" class="form-col">
-                                    <option>Douglas-Peucker</option>
-                                    <option>Radial distance</option>
-                                    <option>Perpendicular Distance</option>
-                                    <option>Lang</option>
-                                    <option>Opheim</option>
-                                    <option>Reumann-Witkam</option>
-                                    <option>Nth point</option>
-                                    <option>Max points</option>
+                                <select id="simp-method" class="form-col">
+                                    <option value="douglas-peucker" explicit>Douglas-Peucker</option>
+                                    <option value="douglas-peucker-n" explicit>Douglas-Peucker N</option>
+                                    <option value="radial-distance">Radial distance</option>
+                                    <option value="perp-distance">Perpendicular Distance</option>
+                                    <option value="lang">Lang</option>
+                                    <option value="opheim">Opheim</option>
+                                    <option value="reumann">Reumann-Witkam</option>
+                                    <option value="nth-point">Nth point</option>
+                                    <option value="max-points">Max points</option>
                                 </select>
                             </div>
-                            <div class="form-row">
+                            <div id="simp-max-points-param" class="form-row disableable">
                                 <label class="form-col">Max number of points</label>
-                                <input class="form-col" id="simplification-limit" type="number" step="1" value="50000" min="2" max="2000000">
+                                <input class="form-col" id="simp-max-points" type="number" step="1" value="50000" min="2" max="2000000">
                             </div>
-                            <div class="form-row">
+                            <div id="simp-tol-param" class="form-row disableable">
                                 <label class="form-col">Tolerance, e-3</label>
-                                <input class="form-col" id="simplification-tolerance" type="number" value="100" min="0">
+                                <input class="form-col" id="simp-tol" type="number" value="100" min="0">
+                            </div>
+                            <div id="simp-max-tol-param" class="form-row disableable">
+                                <label class="form-col">Max tolerance, e-3</label>
+                                <input class="form-col" id="simp-max-tol" type="number" value="200" min="0">
+                            </div>
+                            <div id="simp-nth-point-param" class="form-row disableable">
+                                <label class="form-col">Nth point</label>
+                                <input class="form-col" id="simp-nth-point" type="number" value="3" min="1">
+                            </div>
+                            <div id="simp-look-ahead-param" class="form-row disableable">
+                                <label class="form-col">Look Ahead</label>
+                                <input class="form-col" id="simp-look-ahead" type="number" value="4" min="1">
                             </div>
                         </div>
                     </div>
@@ -301,10 +316,257 @@
                 </div>
             </div>
             <div id="help" data-parent="tab-window" data-role="tab-item" class="tab">
+                <div class="help-header">TODO</div>
                 <div class="help-header">Purpose</div>
                 <a target="_blank" rel="noopener noreferrer" href="https://musseffect.github.io/notes/hybrid-systems">Hybrid dynamical systems</a>
                 <div class="help-header">Language</div>
-                <div class="help-header">Solver parameters</div>
+                <div class="help-header">Parameters</div>
+                    <div class="help-subheader">Solver parameters</div>
+                    <div class="help-subheader">Zero crossing</div>
+                    <div class="help-subheader">Curve simplificaion</div>
+                <div class="help-header">Math functions</div>
+                <div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">sin</span>(<span class="help-farg">ang</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Sin function</p>
+                            <p><span class="help-farg">ang</span> - angle in radians</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">cos</span>(<span class="help-farg">ang</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Cos function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">tan</span>(<span class="help-farg">ang</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Tan function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">cot</span>(<span class="help-farg">ang</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Cot function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">asin</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Asin function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">acos</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Acos function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">atan</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Atan function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">acot</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Acot function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">sinh</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Hyperbolic Sin function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">cosh</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Hyperbolic Cos function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">tanh</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Hyperbolic Tan function</p>
+                        </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">coth</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Hyperbolic Cot function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">asinh</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Hyperbolic Asin function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">acosh</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Hyperbolic Acos function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">atanh</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Hyperbolic Atan function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">acoth</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Hyperbolic Acot function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">erf</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Error function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">exp</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Exponent function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">pow</span>(<span class="help-farg">x</span>,<span class="help-farg">y</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Exponentiation.<p>
+                            <p><span class="help-farg">x</span> is raised to the <span class="help-farg"></span>y-th</span> power</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">ln</span>(<span class="help-farg">x</span>)</div></div>
+                        <div class="help-fdesc">
+                            <p>Natural logarithm</p>
+                        </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">log</span>(<span class="help-farg">base</span>,<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Logarithm</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">lg</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Base-10 logarithm</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">sqrt</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Square root</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">abs</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Absolute value</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">min</span>(<span class="help-farg">x</span>,<span class="help-farg">y</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Minimum</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">max</span>(<span class="help-farg">x</span>,<span class="help-farg">y</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Maximum</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">lerp</span>(<span class="help-farg">a</span>,<span class="help-farg">b</span>,<span class="help-farg">t</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Linear interpolation between a and b</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">clamp</span>(<span class="help-farg">x</span>,<span class="help-farg">min</span>,<span class="help-farg">max</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Clamp <span class="help-farg">x</span> to [min,max] range</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">saturate</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Clamp <span class="help-farg">x</span> to [0,1] range</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">sign</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Sign of argument</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">step</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Heaviside step function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">frac</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Fractional part of a number</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">floor</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Floor function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">round</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Rounding to the nearest integer</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">ceil</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Ceiling function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">smoothstep</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Smoothstep function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">e</span>()</div>
+                        <div class="help-fdesc">
+                            <p>Euler's number</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">pi</span>()</div>
+                        <div class="help-fdesc">
+                            <p>Pi constant</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">sinc</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Sinc function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">squarewave</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Square wave with period 2</p>
+                        </div>
+                    </div>        
+                </div>
             </div>
         </div>
     </div> 

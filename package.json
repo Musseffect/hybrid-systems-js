@@ -26,6 +26,7 @@
     "dependencies": {
         "@types/antlr4": "^4.7.2",
         "@types/jquery": "^3.3.31",
+        "ace-builds": "^1.4.12",
         "antlr4": "4.8.0",
         "bootstrap": "^4.4.1",
         "jquery": ">=3.5.0",

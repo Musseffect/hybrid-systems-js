@@ -1,4 +1,5 @@
-body{
+body
+{
     font-family: -apple-system,BlinkMacSystemFont,
     "Segoe UI",Roboto,"Helvetica Neue",
     Arial,sans-serif,"Apple Color Emoji",
@@ -10,7 +11,8 @@ body{
     min-height:300px;
     resize:vertical;
 }
-.disableable{
+.disableable
+{
     transition: opacity 0.3s ease-in;
 }
 .disableable[disabled]
@@ -51,7 +53,8 @@ body{
     margin-bottom:-1px;
     color:#b7b7b7;
 }
-#log-errors-tab-content{
+#log-errors-tab-content
+{
     border:1px solid gray;
     border-top:none;
 }
@@ -70,10 +73,12 @@ body{
     padding:5px;
     box-sizing:border-box;
 }
-.tab.show{
+.tab.show
+{
     display:block;
 }
-#tab-window{
+#tab-window
+{
     height:100%;
     display:flex;
     flex-direction:column;
@@ -81,7 +86,8 @@ body{
     box-sizing:border-box;
     background-color:#f5f5f5;
 }
-#tab-errors{
+#tab-errors
+{
     margin:5px 0px;
 }
 .tab-container
@@ -95,11 +101,13 @@ body{
     user-select: none;
     box-sizing: border-box;;
 }
-#main-header{
+#main-header
+{
     padding:5px 5px 0px 5px;
     border-bottom:1px solid gray;
 }
-#header{
+#header
+{
     flex-grow:0;
     flex-shrink:0;
     border-bottom:1px solid gray;
@@ -212,15 +220,18 @@ body{
     /*padding:5px;*/
     box-sizing: border-box;
 }
-.example-button{
+.example-button
+{
     margin:4px;
-    display:block;
+    display:inline-block;
 }
-.button:focus{
+.button:focus
+{
     outline-style:solid;
     outline-width:2px;
 }
-.button{
+.button
+{
     padding:5px 10px;
     border-radius:0;
     border:none;
@@ -229,27 +240,77 @@ body{
     cursor: pointer;
     user-select:none;
 }
-.button:hover{
+.button:hover
+{
     background-color:#868686;
 }
-.button:active{
+.button:active
+{
     background-color:#c0c0c0;
     box-shadow:inset 0px 0px 10px -2px black;
     outline:none;
 }
-
+.button[disabled]
+{
+    color:rgba(0,0,0,0.25);
+    pointer-events:none;
+}
 .help-header{
     font-size:1.3rem;
+    font-weight:500;
+    margin:0.5rem 0 0.4rem;
+    padding-bottom:0.25rem;
+    border-bottom:1px solid #dadada;
+}
+.help-subheader{
+    font-size:1.2rem;
     font-weight:500;
     margin:0.5rem 0 0.4rem;
 }
 
 @media only screen and (min-width: 600px) {
-    .form-row {
+    .form-row 
+    {
         width:400px;
     }
-    .group{
+    .group
+    {
         margin:0.75em 0em 0.5em;
         padding:1em 0.5em 0.5em 0.5em;
     }
+  }
+
+
+  #editor
+  {
+      width:100%;
+      height:500px;
+      font-size:inherit;
+  }
+
+  .help-func
+  {
+      color:#F92672;
+      font-family:"Consolas";
+      font-weight:bold;
+      font-size:16px;
+  }
+  .help-farg
+  {
+      color:#0c0cd6;
+      font-family:"Consolas";
+      font-weight:bold;
+      font-size:16px;
+  }
+  .help-fdesc
+  {
+      margin-left:10px;
+  }
+  .help-fhead
+  {
+      padding-bottom:0px;
+  }
+
+  .button-icon{
+      line-height:inherit;
   }

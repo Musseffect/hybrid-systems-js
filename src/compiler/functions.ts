@@ -54,9 +54,13 @@ class sinc extends FunctionDef{
         super("sinc",1,[sinc.der]);
     }
     exec(args:number[]){
-        if(args[0]<0.0001)
-            return 1.0-args[0]*args[0]/6.0*(1.-args[0]*args[0]/20);//truncated maclaurin series 
-        return Math.sin(args[0])/args[0];
+        return sinc.call(args[0]);
+    }
+    static call(x:number){
+        x = Math.abs(x);
+        if(x<0.001)
+            return 1.0-x*x/6.0*(1.-x*x/20);//truncated maclaurin series 
+        return Math.sin(x)/x;
     }
     static der(args:Expression[]){
         return new Division(
@@ -431,6 +435,18 @@ class frac extends FunctionDef{
         return frac.call(args[0]);
     }
 }
+class squarewave extends FunctionDef{
+    constructor(){
+        super("squarewave",1,null);
+    }
+    static call(x:number):number{
+        return Math.sign(frac.call(x/2)-0.5);
+        //return Math.sign(Math.abs(x)%1);
+    }
+    exec(args:number[]){
+        return squarewave.call(args[0]);
+    }
+}
 class smoothstep extends FunctionDef{
     constructor(){
         super("smoothstep",1,null);
@@ -465,6 +481,81 @@ class pi extends FunctionDef{
         return Math.PI;
     }
 };
+class floor extends FunctionDef{
+    constructor(){
+        super("floor",1,null);
+    }
+    static call(x:number):number{
+        return Math.floor(x);
+    }
+    exec(args:number[]){
+        return floor.call(args[0]);
+    }
+}
+class ceil extends FunctionDef{
+    constructor(){
+        super("ceil",1,null);
+    }
+    static call(x:number):number{
+        return Math.ceil(x);
+    }
+    exec(args:number[]){
+        return ceil.call(args[0]);
+    }
+}
+class round extends FunctionDef{
+    constructor(){
+        super("round",1,null);
+    }
+    static call(x:number):number{
+        return Math.round(x);
+    }
+    exec(args:number[]){
+        return round.call(args[0]);
+    }
+}
+class lerp extends FunctionDef{
+    constructor(){
+        super("lerp",3,[lerp.derX,lerp.derY,lerp.derT]);
+    }
+    static call(x:number,y:number,t:number):number{
+        return x*(1-t)+y*t;
+    }
+    exec(args:number[]){
+        return lerp.call(args[0],args[1],args[2]);
+    }
+    static derX(args:Expression[]){
+        return new Subtraction(new Constant(1),args[2]);
+    }
+    static derY(args:Expression[]){
+        return args[2];
+    }
+    static derT(args:Expression[]){
+        return new Subtraction(args[1],args[0]);
+    }
+}
+class clamp extends FunctionDef{
+    constructor(){
+        super("clamp",3,null);
+    }
+    static call(x:number,min:number,max:number):number{
+        return Math.max(min,Math.min(x,max));
+    }
+    exec(args:number[]){
+        return clamp.call(args[0],args[1],args[2]);
+    }
+}
+class saturate extends FunctionDef{
+    constructor(){
+        super("saturate",1,null);
+    }
+    static call(x:number):number{
+        return Math.max(0,Math.min(x,1));
+    }
+    exec(args:number[]){
+        return saturate.call(args[0]);
+    }
+}
 
 export var functionDictionary:Record<string,FunctionDef> = {
     sin:new sin(),
@@ -493,11 +584,18 @@ export var functionDictionary:Record<string,FunctionDef> = {
     abs:new abs(),
     min:new min(),
     max:new max(),
+    lerp:new lerp(),
+    clamp:new clamp(),
+    saturate:new saturate(),
     sign:new sign(),
     step:new step(),
     frac:new frac(),
+    floor:new floor(),
+    round:new round(),
+    ceil:new ceil(),
     smoothstep:new smoothstep(),
     e:new e(),
     pi:new pi(),
-    sinc:new sinc()
+    sinc:new sinc(),
+    squarewave:new squarewave()
 };

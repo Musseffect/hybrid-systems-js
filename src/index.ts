@@ -10,7 +10,8 @@ ui.init();
         width:$("#plot-area").width(),
         height:$("#plot-area").height(),
         paper_bgcolor: 'rgba(245,245,245,1)',
-        plot_bgcolor: 'rgba(245,245,245,1)'
+        plot_bgcolor: 'rgba(245,245,245,1)',
+        nticks:30
       };
       //@ts-ignore
     Plotly.newPlot('plot-area',data,layout,{responsive:true});
