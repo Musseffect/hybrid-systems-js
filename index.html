@@ -1,116 +1,581 @@
 <html>
 <head>
-<title>ODE solvers</title>
+    <title>Hybrid Systems JS</title>
+    <meta charset="utf-8" content="text/html" http-equiv="content-type"/>
+    <meta name="description" content="Simple tool for numerical solution of hybrid dae index 1 systems">
+    <meta name="robots" content="all">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="./main.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
 </head>
 <body>
-<div class="tabHeaderList">
-	<div class="tabHeader">Continuous Optimization</div>
-	<div class="tabHeader">Optimization</div>
-	<div class="tabHeader">Nonlinear equations</div>
-	<div class="tabHeader">ODE systems</div>
-	<div class="tabHeader">Hybrid systems</div>
-</div>
-<div class="tabList">
-	<div class="tab" id="OptimizationContinuous">
-		<textarea id="optimizationInput">
-			cos(x)+y*z-5
-		</textarea>
-		<select id="methodOptimization">
-			<option value="newton"></option>
-			<option value="quasinewton"></option>
-			<option value="gradient descent"></option>
-			<option value="particle swarm"></option>
-			<option value="bees colony"></option>
-			<option value="annealing"></option>
-			<option value="genetic algorithm"></option>
-		</select>
-	</div>
-	<div class="tab" id="Optimization">
-		<textarea id="optimizationInput">
-			var x{continuous limit[-inf,inf]}, y{discrete step[0.2] limit[-2,2]}, z{discrete array[-3,2,1,5]};
-			constant a = 5;
-			if(x<5)
-			{
-				t = x*x+y*z;//
-				fitness=t-x;
-			}else
-				fitness=z;
-		</textarea>
-		//make tabs
-		<select id="methodOptimization">
-			<option value="newton"></option>
-			<option value="gauss-newton"></option>
-		</select>
-	</div>
-	<div class="tab" id="NonlinearEquations">
-		<label for="nonlinearSystemInput">Nonlinear system</label>
-		<textarea id="nonlinearSystemInput">
-		//equations
-		constant p = 2;
-		constant a = 1.0;
-		0 = x*x * a + p + y;
-		0 = x + t;
-		</textarea>
-		<input id="step" type="number">
-		<input id="t0" type="number">
-		<input id="t1" type="number">
-		<input id="newtonIterations" type="number">
-		<input id="fAbsTol" type="number">
-	</div>
-	<div class="tab" id="ODEtab">
-		<label for="odeInput">ODE system</label>
-		<textarea id="odeInput">
-		//equations
-		constant p = 2;
-		constant a = 1.0;
-		der(x,2) = x*x * a + p + y;
-		y' = x + t;
-		//initial conditions
-		x(t0) = 0;
-		der(x)(t0) = 0;
-		</textarea>
-		<select id="ODEsolver">
-			<option>
-			</option>
-		</select>
-		<input id="min step" type="number">
-		<input id="step" type="number">
-		<input id="t0" type="number">
-		<input id="t1" type="number">
-		<input id="newtonIterations" type="number">
-		<input id="fAbsTol" type="number">
-		<button>Solve</button>
-		<div id="modalODEPlot">
-			<div id="modalODEPlotVariables">
-			</div>
-			<button>OK</button>
-			<button>Cancel</button>
-		</div>
-	</div>
-	<div class="tab" id="hybridSystems">
-		<textarea id="hybridInput">
-			//equations
-			constant p = 2;
-			constant a = 1.0;
-			//initial conditions
-			x(t0) = 0;
-			der(x)(t0) = 0;
-			default state stateName
-			{
-				onEnter:
-				x=0;
-				y=0;
-				during:
-				der(x,2) = x*x * a + p + y;
-				y' = x + t;
-				onLeave:
-				x=10;
-			}
-			from stateName to stateName on (x*x<y&&y<10); 
-		</textarea>
-	</div>
-</div>
-<script>
-</script>
+    <!--The flight plan I just filed with the agency lists 
+        Smee,
+        Maimen, 
+        Dpkh Teur,
+        Pavelheer,
+        "Button" Lee,
+        Juan Ovieux,
+        Phurst,
+        Huan-Totok,
+        Ghetstoo,
+        Stehyun,
+        Mia Ahrkraft.-->
+    <div class="tab-container" id="tab-window">
+        <div id="header" class="tab-header-list">
+            <div class="tab-header active" data-role="tab" data-tab="main" data-parent="tab-window">Main</div>
+            <div class="tab-header" data-role="tab" data-tab="run" data-parent="tab-window">Run</div>
+            <div class="tab-header" data-role="tab" data-tab="results" data-parent="tab-window">Result</div>
+            <div class="tab-header" data-role="tab" data-tab="help" data-parent="tab-window">Help</div>
+        </div>
+        <div class="tab-content">
+            <div id="main" class="tab show" data-role="tab-item" data-parent="tab-window">
+                <div id="debug">
+                </div>
+                <div id="editor">
+                </div>
+                <textarea id="text-input" style="display:none"></textarea>
+                <div class="tab-container" id="tab-errors">
+                    <div id="main-header" class="tab-header-list">
+                        <div class="tab-header active" data-role="tab" data-tab="errors-tab" data-parent="tab-errors">Errors</div>
+                        <div class="tab-header" data-role="tab" data-tab="log-tab" data-parent="tab-errors">Log</div>
+                    </div>
+                    <div id="log-errors-tab-content" class="tab-content">
+                        <div id="errors-tab" class="tab show" data-role="tab-item" data-parent="tab-errors">
+                            <div id="errors">
+                            <div id="errors-table">
+                                <div id="errors-header">
+                                    <div class="errors-cell">Line</div>
+                                    <div class="errors-cell">Position</div>
+                                    <div class="errors-cell">Error</div>
+                                </div>
+                                <div id="error-list">
+                                    <!--<div class="errors-row">
+                                        <div class="errors-cell">5</div>
+                                        <div class="errors-cell">3</div>
+                                        <div class="errors-cell">Lorem ipsum something something</div>
+                                    </div>
+                                    <div class="errors-row">
+                                        <div class="errors-cell">5</div>
+                                        <div class="errors-cell">3</div>
+                                        <div class="errors-cell">Ololololaoslda o sl
+                                            doaololaoslda o sldoaolo 
+                                            o sldoaololaoslda o sldoaol 
+                                            o sldoaololaoslda o sldoaol 
+                                            o sldoaololaoslda o sldoaol 
+                                            o sldoaololaoslda o sldoaol 
+                                            o sldoaololaoslda o sldoaol
+                                            laoslda o sldoaololaoslda  
+                                            o sldoaololaoslda o sldoaol
+                                            o sldoaololaoslda o sldoaol
+                                            olaoslda o sldoaololaoslda 
+                                            o sldoaolaoslda o sldoal sdoal sd</div>
+                                    </div>-->
+                                </div>
+                            </div>
+                            <div id="errors-table-padding">
+                            </div>
+                            </div>
+                        </div>
+                        <div id="log-tab" class="tab" data-role="tab-item" data-parent="tab-errors">
+                            <!--<textarea id="log" disabled></textarea>-->
+                            <div id="log-area" style="width:100%;overflow-y:auto;height:150px;position:relative;background-color:white;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="load-area">
+                    <div class="group">
+                        <div class="group-name">Examples</div>
+                        <div class="group" style="vertical-align: top;display:inline-block">
+                            <div class="group-name">DAE</div>
+                            <div id="examples-dae">
+                            </div>
+                        </div>
+                        <div class="group" style="vertical-align: top;display:inline-block">
+                            <div class="group-name">Hybrid</div>
+                            <div id="examples-hybrid">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="run" class="tab" data-role="tab-item" data-parent="tab-window">
+                <div class="group">
+                    <div class="group-name">Solver parameters</div>
+                    <div class="form">
+                        <div class="form-row">
+                            <label class="form-col">Equations form</label>
+                            <select class="form-col" id="dae-form">
+                                <option value="explicit" selected>Explicit</option>
+                                <option value="implicit">Implicit</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <label class="form-col">ODE Method</label>
+                            <select class="form-col" id="dae-method">
+                                <optgroup id="implicitMethods" label="Implicit methods">
+                                </optgroup>
+                                <optgroup id="explicitMethods" label="Explicit methods">
+                                </optgroup>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <label class="form-col">T<sub>0</sub></label>
+                            <input class="form-col" id="t0" value="0" type="number">
+                        </div>
+                        <div class="form-row">
+                            <label class="form-col">Time</label>
+                            <input class="form-col" id="time" value="1" type="number">
+                        </div>
+                        <div class="form-row">
+                            <label class="form-col">Step, e-3</label>
+                            <input class="form-col" id="step" min="0" value="10" type="number">
+                        </div>
+                        <div class="group disableable" id="step-control">
+                            <div class="group-name">Step control</div>
+                            <div class="form">
+                                <div class="form-row">
+                                    <label class="form-col">Min step, e-3</label>
+                                    <input class="form-col" id="min-step" min="0" value="10" type="number">
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-col">Error tolerance. e-3</label>
+                                    <input class="form-col" id="step-err-tol" min="0" value="10" type="number">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="group disableable" id="step-solver">
+                            <div class="group-name">Implicit step solver</div>
+                            <div id="implicit">
+                                <div class="form-row">
+                                    <label class="form-col">Iterations</label>
+                                    <input class="form-col" id="step-solver-iters" min="1" value="20" type="number">
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-col">Min. iterations</label>
+                                    <input class="form-col" id="step-solver-min-iters" min="0" value="0" type="number">
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-col">Abs. tolerance, e-3</label>
+                                    <input class="form-col" id="step-solver-abs-tol" min="0" value="1" type="number">
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-col">Rel. tolerance, e-3</label>
+                                    <input class="form-col" id="step-solver-rel-tol" min="0" value="1" type="number">
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-col">Alpha</label>
+                                    <input class="form-col" id="step-solver-alpha" min="0" value="0.95" max="1" type="number">
+                                </div>
+                                <!--Well, Newton WAS an alpha, what a beast-->
+                            </div>
+                        </div>
+                        <div class="group disableable" id="system-solver">
+                            <div class="group-name">Implicit system solver</div>
+                            <div id="implicit-dae">
+                                <div class="form-row">
+                                    <label class="form-col">Iterations</label>
+                                    <input class="form-col" id="sys-solver-iters" min="1" value="20" type="number">
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-col">Min. iterations</label>
+                                    <input class="form-col" id="sys-solver-min-iters" min="0" value="0" type="number">
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-col">Abs. tolerance, e-3</label>
+                                    <input class="form-col" id="sys-solver-abs-tol" min="0" value="1" type="number">
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-col">Rel. tolerance, e-3</label>
+                                    <input class="form-col" id="sys-solver-rel-tol" min="0" value="1" type="number">
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-col">Alpha</label>
+                                    <input class="form-col" id="sys-solver-alpha" min="0" value="0.95" max="1" type="number">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="group">
+                    <div class="group-name">Event detection</div>
+                    <div class="group">
+                        <div class="group-name">Adaptive step</div>
+                        <div class="form">
+                            <div class="form-row">
+                                <label class="form-col">Use adaptive step</label>
+                                <input class="form-col" id="adaptive-step" type="checkbox">
+                            </div>
+                            <div class="disableable" id="adaptive-step-params">
+                                <div class="form-row">
+                                    <label class="form-col">Gamma</label>
+                                    <input class="form-col" id="adaptive-step-gamma" type="number" min="0" max="1" value="0.95">
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-col">Min step, e-3</label>
+                                    <input class="form-col" id="adaptive-min-step" type="number" min="0" value="10">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="group">
+                        <div class="group-name">Zero crossing detection</div>
+                        <div class="form">
+                            <div class="form-row">
+                                <label class="form-col">Use detection</label>
+                                <input class="form-col" id="zero-crossing" type="checkbox">
+                            </div>
+                            <div class="form-row">
+                                <label class="form-col">Border tolerance, e-3</label>
+                                <input class="form-col" id="zc-border-tol" type="number" min="0" value="1">
+                            </div>
+                            <div class="disableable" id="zero-crossing-params">
+                                <div class="form-row">
+                                    <label class="form-col">Newton method iterations</label>
+                                    <input class="form-col" id="zc-newton-iters" type="number" min="0" value="20">
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-col">Bisection iterations</label>
+                                    <input class="form-col" id="zc-bisect-iters" type="number" min="0" value="20">
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-col">Newton method alpha</label>
+                                    <input class="form-col" id="zc-newton-alpha" type="number" min="0" max="1" value="0.95">
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-col">Abs. tolerance, e-3</label>
+                                    <input class="form-col" id="zc-abs-tol" type="number" min="0" value="1">
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-col">Rel. tolerance, e-3</label>
+                                    <input class="form-col" id="zc-rel-tol" type="number" min="0" value="0.01">
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-col">Time res. abs. tol., e-3</label>
+                                    <input class="form-col" id="zc-time-abs-tol" type="number" min="0" value="1">
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-col">Time res. rel. tol., e-3</label>
+                                    <input class="form-col" id="zc-time-rel-tol" type="number" min="0" value="0.01">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="group">
+                    <div class="group-name">Curve simplification</div>
+                    <div class="form">
+                        <div class="form-row">
+                            <label class="form-col">Use simplification</label>
+                            <input class="form-col" id="simplification" type="checkbox">
+                        </div>
+                        <div class="disableable" id="simplification-params">
+                            <div class="form-row">
+                                <label class="form-col">Method</label>
+                                <select id="simp-method" class="form-col">
+                                    <option value="douglas-peucker" explicit>Douglas-Peucker</option>
+                                    <option value="douglas-peucker-n" explicit>Douglas-Peucker N</option>
+                                    <option value="radial-distance">Radial distance</option>
+                                    <option value="perp-distance">Perpendicular Distance</option>
+                                    <option value="lang">Lang</option>
+                                    <option value="opheim">Opheim</option>
+                                    <option value="reumann">Reumann-Witkam</option>
+                                    <option value="nth-point">Nth point</option>
+                                    <option value="max-points">Max points</option>
+                                </select>
+                            </div>
+                            <div id="simp-max-points-param" class="form-row disableable">
+                                <label class="form-col">Max number of points</label>
+                                <input class="form-col" id="simp-max-points" type="number" step="1" value="50000" min="2" max="2000000">
+                            </div>
+                            <div id="simp-tol-param" class="form-row disableable">
+                                <label class="form-col">Tolerance, e-3</label>
+                                <input class="form-col" id="simp-tol" type="number" value="100" min="0">
+                            </div>
+                            <div id="simp-max-tol-param" class="form-row disableable">
+                                <label class="form-col">Max tolerance, e-3</label>
+                                <input class="form-col" id="simp-max-tol" type="number" value="200" min="0">
+                            </div>
+                            <div id="simp-nth-point-param" class="form-row disableable">
+                                <label class="form-col">Nth point</label>
+                                <input class="form-col" id="simp-nth-point" type="number" value="3" min="1">
+                            </div>
+                            <div id="simp-look-ahead-param" class="form-row disableable">
+                                <label class="form-col">Look Ahead</label>
+                                <input class="form-col" id="simp-look-ahead" type="number" value="4" min="1">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="button" id="run-button">Run</button>
+                <button class="button" id="export-button" disabled>Export</button>
+            </div>
+            <div id="results" data-parent="tab-window" data-role="tab-item" class="tab">
+                <div id="plot-area">
+                </div>
+            </div>
+            <div id="help" data-parent="tab-window" data-role="tab-item" class="tab">
+                <div class="help-header">TODO</div>
+                <div class="help-header">Purpose</div>
+                <a target="_blank" rel="noopener noreferrer" href="https://musseffect.github.io/notes/hybrid-systems">Hybrid dynamical systems</a>
+                <div class="help-header">Language</div>
+                <div class="help-header">Parameters</div>
+                    <div class="help-subheader">Solver parameters</div>
+                    <div class="help-subheader">Zero crossing</div>
+                    <div class="help-subheader">Curve simplificaion</div>
+                <div class="help-header">Math functions</div>
+                <div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">sin</span>(<span class="help-farg">ang</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Sin function</p>
+                            <p><span class="help-farg">ang</span> - angle in radians</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">cos</span>(<span class="help-farg">ang</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Cos function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">tan</span>(<span class="help-farg">ang</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Tan function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">cot</span>(<span class="help-farg">ang</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Cot function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">asin</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Asin function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">acos</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Acos function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">atan</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Atan function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">acot</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Acot function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">sinh</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Hyperbolic Sin function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">cosh</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Hyperbolic Cos function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">tanh</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Hyperbolic Tan function</p>
+                        </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">coth</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Hyperbolic Cot function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">asinh</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Hyperbolic Asin function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">acosh</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Hyperbolic Acos function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">atanh</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Hyperbolic Atan function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">acoth</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Hyperbolic Acot function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">erf</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Error function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">exp</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Exponent function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">pow</span>(<span class="help-farg">x</span>,<span class="help-farg">y</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Exponentiation.<p>
+                            <p><span class="help-farg">x</span> is raised to the <span class="help-farg"></span>y-th</span> power</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">ln</span>(<span class="help-farg">x</span>)</div></div>
+                        <div class="help-fdesc">
+                            <p>Natural logarithm</p>
+                        </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">log</span>(<span class="help-farg">base</span>,<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Logarithm</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">lg</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Base-10 logarithm</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">sqrt</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Square root</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">abs</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Absolute value</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">min</span>(<span class="help-farg">x</span>,<span class="help-farg">y</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Minimum</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">max</span>(<span class="help-farg">x</span>,<span class="help-farg">y</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Maximum</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">lerp</span>(<span class="help-farg">a</span>,<span class="help-farg">b</span>,<span class="help-farg">t</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Linear interpolation between a and b</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">clamp</span>(<span class="help-farg">x</span>,<span class="help-farg">min</span>,<span class="help-farg">max</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Clamp <span class="help-farg">x</span> to [min,max] range</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">saturate</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Clamp <span class="help-farg">x</span> to [0,1] range</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">sign</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Sign of argument</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">step</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Heaviside step function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">frac</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Fractional part of a number</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">floor</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Floor function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">round</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Rounding to the nearest integer</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">ceil</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Ceiling function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">smoothstep</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Smoothstep function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">e</span>()</div>
+                        <div class="help-fdesc">
+                            <p>Euler's number</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">pi</span>()</div>
+                        <div class="help-fdesc">
+                            <p>Pi constant</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">sinc</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Sinc function</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="help-fhead"><span class="help-func">squarewave</span>(<span class="help-farg">x</span>)</div>
+                        <div class="help-fdesc">
+                            <p>Square wave with period 2</p>
+                        </div>
+                    </div>        
+                </div>
+            </div>
+        </div>
+    </div> 
 </body>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script
+src="https://code.jquery.com/jquery-3.5.1.min.js"
+integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
+crossorigin="anonymous"></script>
+<script defer src="./bundle.js">
+</script>
 </html>
