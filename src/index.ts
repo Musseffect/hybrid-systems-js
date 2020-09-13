@@ -30,4 +30,4 @@ window.onresize = function(){
 ui.openTab("run");
 ui.addLogMessage("Start");
 ui.loadDaeExample("stiff-equation");
-ui.showDebug();
+//ui.showDebug();

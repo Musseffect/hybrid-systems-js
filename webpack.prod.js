@@ -6,6 +6,7 @@ module.exports = {
   optimization: {
     minimize: true
   },
+  mode: 'production',
   node: { module: "empty", net: "empty", fs: "empty" },
   output: {
     filename: 'bundle.js',
@@ -15,7 +16,6 @@ module.exports = {
   resolve: {
       extensions: [".ts", ".tsx",".js"]
   },
-  ignored: /node_modules/,
   module: {
     rules: [
         {

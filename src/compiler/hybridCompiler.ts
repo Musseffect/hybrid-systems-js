@@ -775,7 +775,7 @@ export class HybridSystemCompiler{
                 self.errors.push(new ErrorMessage(node.textPos,`Left bound value "${bounds.l}" is higher then right bound value "${bounds.r}"`));
                 return;
             }
-            for(let i = bounds.l;i<bounds.r;i++){
+            for(let i = bounds.l;i<=bounds.r;i++){
                 _context.index = i;
                 statements.forEach(function(statement){
                     self.compileStatement(statement);

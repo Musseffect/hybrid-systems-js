@@ -2,4 +2,8 @@ node_modules
 
 dist/hot
 
+dist/bundle.js
+
+dist/bundle.js.map
+
 design
