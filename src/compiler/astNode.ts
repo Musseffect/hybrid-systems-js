@@ -1,4 +1,4 @@
-//TODO
+
 export const NodeType = {
     _Equation:2,
     _MacroDefinition:3,

@@ -7,7 +7,6 @@ import { AdaptiveStepStrategy } from "./adaptiveStep";
 import { DAEVector } from "./daeVector";
 
 const maxFloats = 2097152;
-//TODO: test this solver
 
 
 export class IDAEHybridSolver {
