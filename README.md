@@ -1,11 +1,9 @@
 Solver for hybrid dynamical systems.
 
-https://musseffect.github.io/notes/hybrid-systems
+[Theory](https://musseffect.github.io/en/notes/hybrid-systems)
 
+#### Screenshots
 
-
-![Main screen](/images/mainScreen.jpg)
-
-![Run screen](/images/runScreen.jpg)
-
-![Results](/images/resultScreen.jpg)
+|![Main screen](https://github.com/Musseffect/hybrid-systems-js/tree/master/images/mainScreen.jpg)|
+|![Run screen](https://github.com/Musseffect/hybrid-systems-js/tree/master/images/runScreen.jpg)|
+|![Results](https://github.com/Musseffect/hybrid-systems-js/tree/master/images/resultScreen.jpg)|
