@@ -4,6 +4,6 @@ Solver for hybrid dynamical systems.
 
 #### Screenshots
 
-|![Main screen](https://github.com/Musseffect/hybrid-systems-js/tree/master/images/mainScreen.jpg)|
-|![Run screen](https://github.com/Musseffect/hybrid-systems-js/tree/master/images/runScreen.jpg)|
-|![Results](https://github.com/Musseffect/hybrid-systems-js/tree/master/images/resultScreen.jpg)|
+|![Main screen](/images/mainScreen.jpg)|
+|![Run screen](/images/runScreen.jpg)|
+|![Results](/images/resultScreen.jpg)|
