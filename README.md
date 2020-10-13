@@ -4,6 +4,6 @@ Solver for hybrid dynamical systems.
 
 #### Screenshots
 
-|![Main screen](/images/mainScreen.jpg)|
-|![Run screen](/images/runScreen.jpg)|
-|![Results](/images/resultScreen.jpg)|
+|Main|Parameters|Results|
+|---|---|---|
+|![Main screen](/images/mainScreen.jpg)|![Run screen](/images/runScreen.jpg)|![Results](/images/resultScreen.jpg)|
